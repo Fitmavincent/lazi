@@ -7,13 +7,13 @@ on:
     branches: [ master ]
     paths:
       - 'api/**'
-      - '.github/workflows/deploy-api.yml'
+      - '.github/workflows/api_deploy.yml'
       - '!api/**'
   pull_request:
     branches: [ master ]
     paths:
       - 'api/**'
-      - '.github/workflows/deploy-api.yml'
+      - '.github/workflows/api_deploy.yml'
       - '!api/**'
 
     # Allows you to run this workflow manually from the Actions tab
