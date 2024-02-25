@@ -33,7 +33,7 @@ class OzCrawler:
 
         # data filtering
         # if item name contains any of the wish list item and item tag is not expired, then add it to the filtered data
-        filtered_data = [item for item in data if any(wish_item in item['name'] for wish_item in wish_list) and item['tag'] != 'expired']
+        filtered_data = [item for item in data if any(wish_item.lower() in item['name'].lower() for wish_item in wish_list) and item['tag'] != 'expired']
 
         return filtered_data
 
