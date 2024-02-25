@@ -1,11 +1,26 @@
 from fastapi import FastAPI, Query, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from services.service import Service
 from services.oz_crawler import OzCrawler
 from typing import List
 
+
+
 service = Service()
 oz_crawler_service = OzCrawler()
 app = FastAPI()
+
+origins = [
+    "https://vin-channel.netlify.app/"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def read_root():
