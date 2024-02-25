@@ -11,7 +11,7 @@ oz_crawler_service = OzCrawler()
 app = FastAPI()
 
 origins = [
-    "https://vin-channel.netlify.app/"
+    "https://vin-channel.netlify.app"
 ]
 
 app.add_middleware(
