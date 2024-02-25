@@ -1,0 +1,35 @@
+name: Deploy API server to Flyio
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+    paths:
+      - 'api/**'
+      - '.github/workflows/deploy-api.yml'
+      - '!api/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'api/**'
+      - '.github/workflows/deploy-api.yml'
+      - '!api/**'
+
+    # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy API server
+    runs-on: ubuntu-latest
+
+    environment: production
+    steps:
+      - uses: actions/checkout@v3
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+        with:
+          working-directory: ./api
+      - run: flyctl deploy --dockerfile ./api/Dockerfile --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
