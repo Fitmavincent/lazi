@@ -19,7 +19,7 @@ def read_health():
 def read_calculate(input: int):
     return service.calculate(input)
 
-@app.get("/oz_data")
+@app.get("/oz-data")
 def read_oz_data(page: int = 20, wish: List[str] = Query(None)):
     data = oz_crawler_service.oz_crawl_pipeline(page, wish)
     return data
