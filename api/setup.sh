@@ -1,5 +1,6 @@
 
 START_SERVER='n'
+START_CLEAN='n'
 END_SERVER='n'
 DELETE_SERVER='n'
 START_WEB_APP='n'
@@ -14,6 +15,10 @@ else
         then
             START_SERVER='y'
             echo "Start Web Server"
+        elif [ "$arg" == '-restart' ] || [ "$arg" == '-re' ]
+        then
+            START_CLEAN='y'
+            echo "Restart Web Server CLEAN"
         elif [ "$arg" == '-down' ] || [ "$arg" == '-d' ]
         then
             END_SERVER='y'
@@ -31,7 +36,14 @@ fi
 
 if [ $START_SERVER == 'y' ]
 then
-    docker-compose build --no-cache
+    docker-compose build
+    docker-compose up -d api
+fi
+
+if [ $START_CLEAN == 'y' ]
+then
+    docker-compose down --rmi all -v
+    docker-compose build --force-recreate
     docker-compose up -d api
 fi
 
