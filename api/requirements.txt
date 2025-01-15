@@ -4,3 +4,4 @@ uvicorn
 beautifulsoup4==4.12.3
 requests
 pytest-playwright
+fake-useragent==2.0.3

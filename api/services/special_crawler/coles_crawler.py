@@ -3,6 +3,7 @@ from playwright.async_api import async_playwright, Route, Request
 import random
 import json
 import asyncio
+from fake_useragent import UserAgent
 
 COLES_BASE_URL = "https://www.coles.com.au"
 COLES_CDN_URL = "https://shop.coles.com.au"
@@ -14,6 +15,8 @@ USER_AGENTS_LIST = [
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.3497.92 Safari/537.36',
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
 ]
+
+ua = UserAgent(browsers=['firefox', 'chrome', 'safari', 'Edge'])
 
 class ColesCrawler:
     def __init__(self):
@@ -31,7 +34,7 @@ class ColesCrawler:
             browser = await p.firefox.launch(headless=True)
             context = await browser.new_context(
                 viewport={"width": 1600, "height": 1200},
-                user_agent=random.choice(USER_AGENTS_LIST)
+                user_agent=ua.random
             )
 
             page = await context.new_page()
@@ -60,7 +63,7 @@ class ColesCrawler:
                 'price_per_unit': product.get('pricing', {}).get('comparable', ''),
                 'price_was': product.get('pricing', {}).get('was', 0),
                 'product_link': f"{COLES_BASE_URL}/product/{product.get('id', '')}",
-                'image': f"{COLES_BASE_URL}/_next/image?url=https://productimages.coles.com.au/productimages/{product.get('imageUris', [{}])[0].get('uri', '')}&w=256&q=90" if product.get('imageUris') else ''
+                'image': f"{COLES_BASE_URL}/_next/image?url=https://productimages.coles.com.au/productimages{product.get('imageUris', [{}])[0].get('uri', '')}&w=256&q=90" if product.get('imageUris') else ''
             }
             transformed_data.append(transformed_item)
 
