@@ -25,6 +25,16 @@ class ColesCrawler:
     async def handle_request(self, route: Route, request: Request):
         print(f"Requesting: {route.request.url}")
         response = await route.fetch()
+
+        #debug log
+        print(f"Response status: {response.status}")
+        content = await response.body()
+        print(f"Response content length: {len(content)} bytes")
+        json_response = await response.json()
+        truncated_response = str(json_response)[:500] + "..." if len(str(json_response)) > 500 else str(json_response)
+        print(f"Response: {truncated_response}")
+        #erroring here
+
         self.special_api_response = await response.json()
         # print(f"Response: {self.special_api_response}")
         await route.continue_()
