@@ -30,6 +30,7 @@ class ColesCrawler:
         print(f"Response status: {response.status}")
         content = await response.body()
         print(f"Response content length: {len(content)} bytes")
+        print(f"Response content: {content[:500]}...")
         json_response = await response.json()
         truncated_response = str(json_response)[:500] + "..." if len(str(json_response)) > 500 else str(json_response)
         print(f"Response: {truncated_response}")
