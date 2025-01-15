@@ -5,6 +5,7 @@ import json
 import asyncio
 
 COLES_BASE_URL = "https://www.coles.com.au"
+COLES_CDN_URL = "https://shop.coles.com.au"
 API_URL_PATTERN = "**/api/product*"
 
 USER_AGENTS_LIST = [
@@ -49,8 +50,28 @@ class ColesCrawler:
 
             return self.special_api_response
 
+    def transform_product_data(self, raw_data):
+
+        transformed_data = []
+        for product in raw_data.get('results', []):
+            transformed_item = {
+                'name': product.get('description', ''),
+                'price': product.get('pricing', {}).get('now', 0),
+                'price_per_unit': product.get('pricing', {}).get('comparable', ''),
+                'price_was': product.get('pricing', {}).get('was', 0),
+                'product_link': f"{COLES_BASE_URL}/product/{product.get('id', '')}",
+                'image': f"{COLES_BASE_URL}/_next/image?url=https://productimages.coles.com.au/productimages/{product.get('imageUris', [{}])[0].get('uri', '')}&w=256&q=90" if product.get('imageUris') else ''
+            }
+            transformed_data.append(transformed_item)
+
+        coles_data = {
+            "count": raw_data.get('noOfResults', 0),
+            "data": transformed_data
+        }
+        return coles_data
+
     async def process_data(self):
-        data = await self.crawl_coles_pipeline()
-        if data:
-            return data
+        raw_data = await self.crawl_coles_pipeline()
+        if raw_data:
+            return self.transform_product_data(raw_data)
         return None
