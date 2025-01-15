@@ -46,5 +46,5 @@ kill_timeout = 180
     force_https = true  # optional
 
 [[vm]]
-  size = 'shared-cpu-1x'
-  memory = 256
+  size = "shared-cpu-1x"
+  memory = "2gb"
