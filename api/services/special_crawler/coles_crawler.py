@@ -63,7 +63,9 @@ class ColesCrawler:
                 'price_per_unit': product.get('pricing', {}).get('comparable', ''),
                 'price_was': product.get('pricing', {}).get('was', 0),
                 'product_link': f"{COLES_BASE_URL}/product/{product.get('id', '')}",
-                'image': f"{COLES_BASE_URL}/_next/image?url=https://productimages.coles.com.au/productimages{product.get('imageUris', [{}])[0].get('uri', '')}&w=256&q=90" if product.get('imageUris') else ''
+                'image': f"{COLES_BASE_URL}/_next/image?url=https://productimages.coles.com.au/productimages{product.get('imageUris', [{}])[0].get('uri', '')}&w=256&q=90" if product.get('imageUris') else '',
+                "discount": product.get('pricing', {}).get('priceDescription', ''),
+                "retailer": "Coles"
             }
             transformed_data.append(transformed_item)
 
