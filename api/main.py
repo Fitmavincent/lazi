@@ -12,7 +12,8 @@ coles_crawler_service = ColesCrawler()
 app = FastAPI()
 
 origins = [
-    "https://vin-channel.netlify.app"
+    "https://vin-channel.netlify.app",
+    "https://home.fitmavincent.com"
 ]
 
 app.add_middleware(
