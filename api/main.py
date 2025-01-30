@@ -13,7 +13,7 @@ app = FastAPI()
 
 origins = [
     "https://vin-channel.netlify.app",
-    "https://home.fitmavincent.com"
+    "https://home.fitmavincent.dev"
 ]
 
 app.add_middleware(
