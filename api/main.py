@@ -5,6 +5,7 @@ from services.oz_crawler import OzCrawler
 from services.special_crawler.coles_crawler import ColesCrawler
 from typing import Annotated
 from scheduler import setup_scheduler
+from pydantic import BaseModel
 
 service = Service()
 oz_crawler_service = OzCrawler()
@@ -61,3 +62,13 @@ async def force_sync_coles_data():
     if not data:
         raise HTTPException(status_code=500, detail="Failed to sync data")
     return {"status": "success", "message": "Data synced successfully"}
+
+
+class PasswordRequest(BaseModel):
+    say: str
+
+@app.post("/coles-data/sync/password")
+async def can_force_sync(request: PasswordRequest):
+    if request.say != "I am solemnly swear that I am up to no good":
+        raise HTTPException(status_code=403, detail="Tsk Tsk! Nice try")
+    return {"status": "success", "message": "Password validated"}
