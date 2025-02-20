@@ -95,6 +95,7 @@ class ColesCrawler:
             transformed_data.append(transformed_item)
 
         coles_data = {
+            "synced_at": datetime.now().isoformat(),
             "count": raw_data.get('noOfResults', 0),
             "data": transformed_data
         }
