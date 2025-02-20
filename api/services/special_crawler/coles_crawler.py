@@ -1,7 +1,7 @@
 import json
 import os
 import boto3
-from datetime import datetime
+from datetime import datetime, timezone
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright, Route, Request
 import random
@@ -106,7 +106,7 @@ class ColesCrawler:
             transformed_data.append(transformed_item)
 
         coles_data = {
-            "synced_at": datetime.now().isoformat(),
+            "synced_at": datetime.now(timezone.utc).isoformat(),
             "count": raw_data.get('noOfResults', 0),
             "data": transformed_data
         }
