@@ -4,7 +4,7 @@ from services.service import Service
 from services.oz_crawler import OzCrawler
 from services.special_crawler.coles_crawler import ColesCrawler
 from typing import Annotated
-
+from scheduler import setup_scheduler
 
 service = Service()
 oz_crawler_service = OzCrawler()
@@ -23,6 +23,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def start_scheduler():
+    scheduler = setup_scheduler()
+    scheduler.start()
 
 @app.get("/")
 def read_root():
@@ -43,5 +48,16 @@ def read_oz_data(page: int = 20, wish: Annotated[list[str] | None, Query()] = No
 
 @app.get("/coles-data")
 async def read_coles_data():
-    data = await coles_crawler_service.process_data()
+    """Read from saved JSON file"""
+    data = await coles_crawler_service.fetch_data()
+    if not data:
+        raise HTTPException(status_code=404, detail="No data available")
     return data
+
+@app.post("/coles-data/sync")
+async def force_sync_coles_data():
+    """Force sync data from Coles API"""
+    data = await coles_crawler_service.force_sync()
+    if not data:
+        raise HTTPException(status_code=500, detail="Failed to sync data")
+    return {"status": "success", "message": "Data synced successfully"}

@@ -1,7 +1,9 @@
+import json
+import os
+from datetime import datetime
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright, Route, Request
 import random
-import json
 import asyncio
 from fake_useragent import UserAgent
 
@@ -21,6 +23,9 @@ ua = UserAgent(browsers=['firefox', 'chrome', 'safari', 'Edge'])
 class ColesCrawler:
     def __init__(self):
         self.special_api_response = None
+        self.data_dir = os.path.join(os.path.dirname(__file__), '../../../coles_data')
+        os.makedirs(self.data_dir, exist_ok=True)
+        self.data_file = os.path.join(self.data_dir, 'coles_specials.json')
 
     async def handle_request(self, route: Route, request: Request):
         print(f"Requesting: {route.request.url}")
@@ -37,7 +42,7 @@ class ColesCrawler:
         #erroring here
 
         self.special_api_response = await response.json()
-        # print(f"Response: {self.special_api_response}")
+
         await route.continue_()
 
     async def crawl_coles_pipeline(self):
@@ -49,6 +54,15 @@ class ColesCrawler:
             )
 
             page = await context.new_page()
+
+            await page.set_extra_http_headers({
+                'Accept': '*/*',
+                'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,zh-TW;q=0.6',
+                'Connection': 'keep-alive',
+                'Content-Type': 'application/json',
+                'origin':  f"{COLES_BASE_URL}",
+                'referer': f"{COLES_BASE_URL}/half-price-specials"
+            })
 
             try:
                 # Intercept the API request
@@ -86,8 +100,26 @@ class ColesCrawler:
         }
         return coles_data
 
-    async def process_data(self):
+    def save_to_file(self, data):
+        with open(self.data_file, 'w') as f:
+            json.dump(data, f)
+
+    def load_from_file(self):
+        try:
+            with open(self.data_file, 'r') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return None
+
+    async def force_sync(self):
+        """Force sync data from Coles API and save to file"""
         raw_data = await self.crawl_coles_pipeline()
         if raw_data:
-            return self.transform_product_data(raw_data)
+            transformed_data = self.transform_product_data(raw_data)
+            self.save_to_file(transformed_data)
+            return transformed_data
         return None
+
+    async def fetch_data(self):
+        """Only read from saved file"""
+        return self.load_from_file()
