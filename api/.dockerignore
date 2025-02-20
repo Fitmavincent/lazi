@@ -1,5 +1,7 @@
 # flyctl launch added from .gitignore
-**\__pycache__
-**\*.py[cod]
-**\*env
+**/__pycache__
+**/*.py[cod]
+**/*enve or modify the env pattern to be more specific
+!env.production/     # This will only ignore virtual environment directories
 fly.toml
+

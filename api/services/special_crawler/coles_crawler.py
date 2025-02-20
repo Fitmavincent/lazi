@@ -1,11 +1,13 @@
 import json
 import os
+import boto3
 from datetime import datetime
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright, Route, Request
 import random
 import asyncio
 from fake_useragent import UserAgent
+from core.settings import get_settings
 
 COLES_BASE_URL = "https://www.coles.com.au"
 COLES_CDN_URL = "https://shop.coles.com.au"
@@ -23,9 +25,18 @@ ua = UserAgent(browsers=['firefox', 'chrome', 'safari', 'Edge'])
 class ColesCrawler:
     def __init__(self):
         self.special_api_response = None
-        self.data_dir = os.path.join(os.path.dirname(__file__), '../../../coles_data')
-        os.makedirs(self.data_dir, exist_ok=True)
-        self.data_file = os.path.join(self.data_dir, 'coles_specials.json')
+        settings = get_settings()
+
+        # Initialize S3 client for Cloudflare R2
+        self.s3_client = boto3.client(
+            service_name='s3',
+            endpoint_url=settings.R2_ENDPOINT_URL,
+            aws_access_key_id=settings.R2_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.R2_SECRET_ACCESS_KEY,
+            region_name=settings.R2_REGION
+        )
+        self.bucket_name = settings.R2_BUCKET_NAME
+        self.file_key = '/home/crawlers/coles_specials.json'
 
     async def handle_request(self, route: Route, request: Request):
         print(f"Requesting: {route.request.url}")
@@ -102,20 +113,37 @@ class ColesCrawler:
         return coles_data
 
     def save_to_file(self, data):
-        with open(self.data_file, 'w') as f:
-            json.dump(data, f)
+        """Save data to Cloudflare R2"""
+        try:
+            json_data = json.dumps(data)
+            self.s3_client.put_object(
+                Bucket=self.bucket_name,
+                Key=self.file_key,
+                Body=json_data
+            )
+        except Exception as e:
+            print(f"Error saving to R2: {e}")
+            raise
 
     def load_from_file(self):
+        """Load data from Cloudflare R2"""
         try:
-            with open(self.data_file, 'r') as f:
-                return json.load(f)
-        except FileNotFoundError:
+            response = self.s3_client.get_object(
+                Bucket=self.bucket_name,
+                Key=self.file_key
+            )
+            json_data = response['Body'].read().decode('utf-8')
+            return json.loads(json_data)
+        except self.s3_client.exceptions.NoSuchKey:
+            return None
+        except Exception as e:
+            print(f"Error loading from R2: {e}")
             return None
 
     async def force_sync(self):
         """Force sync data from Coles API and save to file"""
         raw_data = await self.crawl_coles_pipeline()
-        if raw_data:
+        if (raw_data):
             transformed_data = self.transform_product_data(raw_data)
             self.save_to_file(transformed_data)
             return transformed_data
