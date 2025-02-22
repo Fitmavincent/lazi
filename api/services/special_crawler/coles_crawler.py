@@ -1,11 +1,7 @@
 import json
-import os
 import boto3
 from datetime import datetime, timezone
-from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright, Route, Request
-import random
-import asyncio
 from fake_useragent import UserAgent
 from core.settings import get_settings
 
