@@ -27,14 +27,17 @@ class WooliesCrawler:
         self.current_page = 1
         self.max_pages = 10
         self.page_stats = []  # Add tracking for page statistics
+        self.initial_payload = {}
 
     async def handle_request(self, route: Route, request: Request):
-        print(f"Intercepted request to: {route.request.url}")
+        print(f"Intercepted request to: {route.request.url} {datetime.now()}")
 
         # Let the first request go through normally
         if self.current_page == 1:
             response = await route.fetch()
             json_data = await response.json()
+            initial_payload = request.post_data
+            print(initial_payload)
             self.process_response(json_data)
             self.page_stats.append({
                 'page': self.current_page,
@@ -42,37 +45,19 @@ class WooliesCrawler:
                 'total_records': json_data.get('TotalRecordCount', 0)
             })
             self.current_page += 1
-            await self.fetch_remaining_pages(request)
+            await self.fetch_remaining_pages(initial_payload)
             await route.continue_()
         else:
             await route.continue_()
 
-    async def fetch_remaining_pages(self, original_request):
-        base_payload = {
-            "categoryId": "specialsgroup.3676",
-            "pageSize": 36,
-            "sortType": "TraderRelevance",
-            "url": "/shop/browse/specials/half-price",
-            "location": "/shop/browse/specials/half-price",
-            "formatObject": "{\"name\":\"Half Price\"}",
-            "isSpecial": True,
-            "isBundle": False,
-            "isMobile": False,
-            "filters": [],
-            "token": "",
-            "gpBoost": 0,
-            "isHideUnavailableProducts": False,
-            "isRegisteredRewardCardPromotion": False,
-            "enableAdReRanking": False,
-            "groupEdmVariants": True,
-            "categoryVersion": "v2",
-            "flags": {"EnableProductBoostExperiment": True}
-        }
 
+
+    async def fetch_remaining_pages(self, original_request):
+        print(f"Fetching remaining pages {datetime.now()}")
+        payload = json.loads(original_request) if original_request else {}
         # Start from page 2 since we already have page 1
         for page in range(2, self.max_pages + 1):
             print(f"Fetching page {page}")
-            payload = base_payload.copy()
             payload["pageNumber"] = page
 
             try:
@@ -160,6 +145,7 @@ class WooliesCrawler:
 
             try:
                 # Intercept the API request
+                print(f"Intercepting API request {datetime.now()}")
                 await page.route(API_URL_PATTERN, self.handle_request)
 
                 # Navigate to trigger the first request
@@ -172,6 +158,7 @@ class WooliesCrawler:
                 print(f"Failed to load page or intercept API: {e}")
                 return None
             finally:
+                print(f"Hit finally block {datetime.now()}")
                 await browser.close()
                 self.max_pages = original_max_pages  # Restore original max_pages
 
