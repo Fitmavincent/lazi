@@ -26,70 +26,61 @@ class WooliesCrawler:
         self.all_products = []
         self.current_page = 1
         self.max_pages = 10
-        self.page_stats = []  # Add tracking for page statistics
-        self.initial_payload = {}
+        self.page_stats = []
+        self.unique_product_names = set()  # Add tracking for unique products
 
     async def handle_request(self, route: Route, request: Request):
         print(f"Intercepted request to: {route.request.url} {datetime.now()}")
+        print(f"Processing page {self.current_page}")
 
-        # Let the first request go through normally
-        if self.current_page == 1:
-            response = await route.fetch()
-            json_data = await response.json()
-            initial_payload = request.post_data
-            print(initial_payload)
-            self.process_response(json_data)
-            self.page_stats.append({
-                'page': self.current_page,
-                'products_found': len(json_data.get('Bundles', [])),
-                'total_records': json_data.get('TotalRecordCount', 0)
-            })
-            self.current_page += 1
-            await self.fetch_remaining_pages(initial_payload)
-            await route.continue_()
-        else:
-            await route.continue_()
+        response = await route.fetch()
+        json_data = await response.json()
 
+        self.process_response(json_data)
+        self.page_stats.append({
+            'page': self.current_page,
+            'products_found': len(json_data.get('Bundles', [])),
+            'total_records': json_data.get('TotalRecordCount', 0)
+        })
+        await route.continue_()
 
+    async def crawl_woolies_pipeline(self):
+        self.all_products = []  # Reset products list
+        self.current_page = 1   # Reset page counter
+        self.page_stats = []    # Reset page statistics
+        self.unique_product_names = set()  # Reset unique products tracking
 
-    async def fetch_remaining_pages(self, original_request):
-        print(f"Fetching remaining pages {datetime.now()}")
-        payload = json.loads(original_request) if original_request else {}
-        # Start from page 2 since we already have page 1
-        for page in range(2, self.max_pages + 1):
-            print(f"Fetching page {page}")
-            payload["pageNumber"] = page
+        async with async_playwright() as p:
+            browser = await p.firefox.launch(headless=True)
+            context = await browser.new_context(user_agent=ua.random)
+            page = await context.new_page()
 
             try:
-                async with async_playwright() as p:
-                    browser = await p.firefox.launch(headless=True)
-                    context = await browser.new_context(user_agent=ua.random)
-                    page_instance = await context.new_page()
+                # Set up request interception
+                await page.route(API_URL_PATTERN, self.handle_request)
 
-                    response = await page_instance.request.post(
-                        f"{WOOLIES_BASE_URL}/apis/ui/browse/category",
-                        headers={
-                            'Content-Type': 'application/json',
-                            'Origin': WOOLIES_BASE_URL,
-                            'Referer': WOOLIES_SPECIAL_URL
-                        },
-                        data=json.dumps(payload)
-                    )
+                # Navigate through pages
+                for page_num in range(1, self.max_pages + 1):
+                    self.current_page = page_num
+                    url = WOOLIES_SPECIAL_URL
+                    if page_num > 1:
+                        url = f"{WOOLIES_SPECIAL_URL}?pageNumber={page_num}"
 
-                    if response.ok:
-                        json_data = await response.json()
-                        self.process_response(json_data)
-                        self.page_stats.append({
-                            'page': page,
-                            'products_found': len(json_data.get('Bundles', [])),
-                            'total_records': json_data.get('TotalRecordCount', 0)
-                        })
-                        self.current_page = page
+                    print(f"\nNavigating to page {page_num}: {url}")
+                    await page.goto(url, timeout=30000)
+                    await page.wait_for_timeout(3000)  # Wait for data to load
 
-                    await browser.close()
             except Exception as e:
-                print(f"Error fetching page {page}: {e}")
-                break
+                print(f"Failed to load page or intercept API: {e}")
+                return None
+            finally:
+                print(f"Hit finally block {datetime.now()}")
+                await browser.close()
+
+        return {
+            'products': self.all_products,
+            'pagination': self.page_stats
+        }
 
     def process_response(self, json_data):
         if not json_data.get('Success'):
@@ -98,28 +89,32 @@ class WooliesCrawler:
         for bundle in json_data.get('Bundles', []):
             for product in bundle.get('Products', []):
                 if product.get('IsHalfPrice'):  # Only include half price items
-                    self.all_products.append({
-                        'name': product.get('DisplayName', ''),
-                        'price_now': product.get('Price', 0),
-                        'price_was': product.get('WasPrice', 0),
-                        'price_per_unit': product.get('CupString', ''),
-                        'image': product.get('LargeImageFile', ''),
-                        'product_link': f"{WOOLIES_BASE_URL}/shop/productdetails/{product.get('Stockcode')}",
-                    })
+                    product_name = product.get('DisplayName', '')
+                    # Only add if we haven't seen this product name before
+                    if product_name not in self.unique_product_names:
+                        self.unique_product_names.add(product_name)
+                        self.all_products.append({
+                            'name': product_name,
+                            'price_now': product.get('Price', 0),
+                            'price_was': product.get('WasPrice', 0),
+                            'price_per_unit': product.get('CupString', ''),
+                            'image': product.get('LargeImageFile', ''),
+                            'product_link': f"{WOOLIES_BASE_URL}/shop/productdetails/{product.get('Stockcode')}",
+                        })
 
     def transform_product_data(self, raw_data):
         if not raw_data:
             return None
 
         transformed_data = []
-        for product in raw_data:
+        for product in raw_data.get('products', []):  # Access the 'products' key from raw_data
             transformed_item = {
-                'name': product.get('name', ''),
-                'price': product.get('price_now', 0),
-                'price_per_unit': product.get('price_per_unit', ''),
-                'price_was': product.get('price_was', 0),
-                'product_link': product.get('product_link', ''),
-                'image': product.get('image', ''),
+                'name': product['name'],  # Direct dictionary access
+                'price': product['price_now'],
+                'price_per_unit': product['price_per_unit'],
+                'price_was': product['price_was'],
+                'product_link': product['product_link'],
+                'image': product['image'],
                 'discount': '50% off',
                 'retailer': 'Woolworths'
             }
@@ -131,41 +126,6 @@ class WooliesCrawler:
             'data': transformed_data
         }
         return woolies_data
-
-    async def crawl_woolies_pipeline(self):
-        self.all_products = []  # Reset products list
-        self.current_page = 1   # Reset page counter
-        self.page_stats = []    # Reset page statistics
-        original_max_pages = self.max_pages  # Store original max_pages
-
-        async with async_playwright() as p:
-            browser = await p.firefox.launch(headless=True)
-            context = await browser.new_context(user_agent=ua.random)
-            page = await context.new_page()
-
-            try:
-                # Intercept the API request
-                print(f"Intercepting API request {datetime.now()}")
-                await page.route(API_URL_PATTERN, self.handle_request)
-
-                # Navigate to trigger the first request
-                await page.goto(WOOLIES_SPECIAL_URL, timeout=30000)
-
-                # Wait for all requests to complete
-                await page.wait_for_timeout(5000)
-
-            except Exception as e:
-                print(f"Failed to load page or intercept API: {e}")
-                return None
-            finally:
-                print(f"Hit finally block {datetime.now()}")
-                await browser.close()
-                self.max_pages = original_max_pages  # Restore original max_pages
-
-        return {
-            'products': self.all_products,
-            'pagination': self.page_stats
-        }
 
     def save_to_file(self, data):
         """Save data to Cloudflare R2"""
@@ -198,7 +158,7 @@ class WooliesCrawler:
     async def force_sync(self):
         """Force sync data from Woolworths and save to file"""
         raw_data = await self.crawl_woolies_pipeline()
-        if raw_data:
+        if (raw_data):
             transformed_data = self.transform_product_data(raw_data)
             self.save_to_file(transformed_data)
             return transformed_data
