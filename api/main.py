@@ -5,8 +5,9 @@ from services.special_crawler.oz_crawler import OzCrawler
 from services.special_crawler.coles_crawler import ColesCrawler
 from services.special_crawler.woolies_crawler import WooliesCrawler
 from typing import Annotated
-from scheduler import setup_scheduler
+from scheduler import scheduler, setup_scheduler
 from pydantic import BaseModel
+import logging
 
 service = Service()
 oz_crawler_service = OzCrawler()
@@ -14,9 +15,12 @@ coles_crawler_service = ColesCrawler()
 woolies_crawler_service = WooliesCrawler()
 app = FastAPI()
 
+logger = logging.getLogger(__name__)
+
 origins = [
     "https://vin-channel.netlify.app",
-    "https://home.fitmavincent.dev"
+    "https://home.fitmavincent.dev",
+    "http://localhost:3000",
 ]
 
 app.add_middleware(
@@ -29,8 +33,17 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def start_scheduler():
-    scheduler = setup_scheduler()
-    scheduler.start()
+    try:
+        setup_scheduler()
+        scheduler.start()
+        logger.info("Scheduler started successfully")
+    except Exception as e:
+        logger.error(f"Failed to start scheduler: {e}")
+
+@app.on_event("shutdown")
+async def shutdown_scheduler():
+    if scheduler.running:
+        scheduler.shutdown()
 
 @app.get("/")
 def read_root():
