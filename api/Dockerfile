@@ -6,6 +6,7 @@ COPY ./requirements.txt /src/api/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /src/api/requirements.txt
 RUN playwright install --with-deps
+RUN scrapling install
 
 COPY . /src/api
 

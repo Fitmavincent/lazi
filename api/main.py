@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from services.service import Service
 from services.special_crawler.oz_crawler import OzCrawler
 from services.special_crawler.coles_crawler import ColesCrawler
+from services.special_crawler.coles_crawler_v2 import ColesV2Crawler
 from services.special_crawler.woolies_crawler import WooliesCrawler
 from typing import Annotated
 from scheduler import scheduler, setup_scheduler
@@ -12,6 +13,7 @@ import logging
 service = Service()
 oz_crawler_service = OzCrawler()
 coles_crawler_service = ColesCrawler()
+coles_v2_crawler_service = ColesV2Crawler()
 woolies_crawler_service = WooliesCrawler()
 app = FastAPI()
 
@@ -74,6 +76,22 @@ async def read_coles_data():
 async def force_sync_coles_data():
     """Force sync data from Coles API"""
     data = await coles_crawler_service.force_sync()
+    if not data:
+        raise HTTPException(status_code=500, detail="Failed to sync data")
+    return {"status": "success", "message": "Data synced successfully"}
+
+@app.get("/coles-data-v2")
+async def read_coles_data_v2():
+    """Read from saved JSON file (V2 Scrapling crawler)"""
+    data = await coles_v2_crawler_service.fetch_data()
+    if not data:
+        raise HTTPException(status_code=404, detail="No data available")
+    return data
+
+@app.post("/coles-data-v2/sync")
+async def force_sync_coles_data_v2():
+    """Force sync data from Coles website using Scrapling (V2)"""
+    data = await coles_v2_crawler_service.force_sync()
     if not data:
         raise HTTPException(status_code=500, detail="Failed to sync data")
     return {"status": "success", "message": "Data synced successfully"}
@@ -142,3 +160,38 @@ async def test_woolies_crawl():
         "total_products": len(transformed_data['data']),
         "total_half_price_products": len([p for p in products if p.get('price_was')])
     }
+
+@app.get("/test/coles-crawl-v2")
+async def test_coles_crawl_v2():
+    """Test endpoint for Coles V2 crawler (Scrapling) without storage - limited to 3 pages for testing"""
+    # Temporarily set to 3 pages for testing
+    original_max_pages = coles_v2_crawler_service.max_pages
+    coles_v2_crawler_service.max_pages = 3
+
+    try:
+        raw_products = await coles_v2_crawler_service.crawl_coles_pipeline()
+        if not raw_products:
+            raise HTTPException(status_code=500, detail="Failed to fetch Coles V2 data")
+
+        transformed_data = coles_v2_crawler_service.transform_product_data(raw_products)
+
+        return {
+            "pagination_info": {
+                "pages_attempted": coles_v2_crawler_service.max_pages,
+                "products_found": len(raw_products),
+                "crawler_type": "Scrapling StealthyFetcher",
+                "max_pages_production": original_max_pages
+            },
+            "raw_samples": raw_products[:5] if raw_products else None,
+            "transformed_samples": transformed_data['data'][:5] if transformed_data['data'] else None,
+            "total_products": len(transformed_data['data']),
+            "sample_product_details": {
+                "has_prices": len([p for p in raw_products if p.get('price', 0) > 0]),
+                "has_discounts": len([p for p in raw_products if p.get('discount')]),
+                "has_images": len([p for p in raw_products if p.get('image')]),
+                "has_links": len([p for p in raw_products if p.get('product_link')])
+            }
+        }
+    finally:
+        # Restore original max_pages
+        coles_v2_crawler_service.max_pages = original_max_pages

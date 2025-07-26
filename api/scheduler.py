@@ -1,6 +1,7 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from services.special_crawler.coles_crawler import ColesCrawler
+from services.special_crawler.coles_crawler_v2 import ColesV2Crawler
 from services.special_crawler.woolies_crawler import WooliesCrawler
 import asyncio
 from datetime import datetime
@@ -48,6 +49,21 @@ async def fetch_coles_data():
         return {"status": "success"}
     return {"status": "failed"}
 
+async def fetch_coles_data_v2():
+    logger.info(f"Running Coles V2 crawler (Scrapling) cron job at {datetime.now()}")
+    crawler = ColesV2Crawler()
+    try:
+        transformed_data = await crawler.force_sync()
+        if transformed_data:
+            logger.info(f"Coles V2 crawler completed at {datetime.now()}")
+            return {"status": "success"}
+        else:
+            logger.error("Coles V2 crawler failed to retrieve data")
+            return {"status": "failed"}
+    except Exception as e:
+        logger.error(f"Coles V2 crawler failed with exception: {e}")
+        return {"status": "failed"}
+
 async def fetch_woolies_data():
     logger.info(f"Running Woolies crawler cron job at {datetime.now()}")
     crawler = WooliesCrawler()
@@ -83,6 +99,18 @@ def setup_scheduler():
                 timezone='Australia/Sydney'
             ),
             id='fetch_coles_data',
+            misfire_grace_time=None
+        )
+
+        scheduler.add_job(
+            fetch_coles_data_v2,
+            CronTrigger(
+                day_of_week='wed',
+                hour=0,
+                minute=30,  # Run 30 minutes after the original crawler
+                timezone='Australia/Sydney'
+            ),
+            id='fetch_coles_data_v2',
             misfire_grace_time=None
         )
 
