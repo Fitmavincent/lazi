@@ -33,7 +33,7 @@ class ColesV2Crawler:
                 region_name=settings.R2_REGION
             )
             self.bucket_name = settings.R2_BUCKET_NAME
-            self.file_key = '/home/crawlers/coles_specials_v2.json'
+            self.file_key = '/home/crawlers/coles_specials.json'
             logger.info("S3 client initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize S3 client: {e}")
