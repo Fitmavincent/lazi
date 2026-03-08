@@ -4,6 +4,7 @@ from services.service import Service
 from services.special_crawler.oz_crawler import OzCrawler
 from services.special_crawler.coles_crawler import ColesCrawler
 from services.special_crawler.coles_crawler_v2 import ColesV2Crawler
+from services.special_crawler.coles_crawler_v2_5 import ColesV25Crawler
 from services.special_crawler.woolies_crawler import WooliesCrawler
 from typing import Annotated
 from scheduler import scheduler, setup_scheduler
@@ -14,7 +15,12 @@ service = Service()
 oz_crawler_service = OzCrawler()
 coles_crawler_service = ColesCrawler()
 coles_v2_crawler_service = ColesV2Crawler()
+coles_v2_5_crawler_service = ColesV25Crawler()
 woolies_crawler_service = WooliesCrawler()
+
+# Internal metadata fields added by the V2.5 crawler that must be stripped
+# before returning to callers — the frozen API shape must not change.
+_INTERNAL_FIELDS = {"crawl_status", "pages_attempted", "pages_succeeded", "pages_blocked", "crawler_version"}
 app = FastAPI()
 
 logger = logging.getLogger(__name__)
@@ -92,6 +98,22 @@ async def read_coles_data_v2():
 async def force_sync_coles_data_v2():
     """Force sync data from Coles website using Scrapling (V2)"""
     data = await coles_v2_crawler_service.force_sync()
+    if not data:
+        raise HTTPException(status_code=500, detail="Failed to sync data")
+    return {"status": "success", "message": "Data synced successfully"}
+
+@app.get("/coles-data-v2-5")
+async def read_coles_data_v2_5():
+    """Read Coles half-price specials from R2 (V2.5 crawler)"""
+    data = await coles_v2_5_crawler_service.fetch_data()
+    if not data:
+        raise HTTPException(status_code=404, detail="No data available")
+    return {k: v for k, v in data.items() if k not in _INTERNAL_FIELDS}
+
+@app.post("/coles-data-v2-5/sync")
+async def force_sync_coles_data_v2_5():
+    """Force sync Coles half-price specials using the V2.5 crawler"""
+    data = await coles_v2_5_crawler_service.force_sync()
     if not data:
         raise HTTPException(status_code=500, detail="Failed to sync data")
     return {"status": "success", "message": "Data synced successfully"}
