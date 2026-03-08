@@ -10,6 +10,7 @@ boto3
 pydantic-settings
 python-dotenv
 scrapling
+curl_cffi
 camoufox
 playwright>=1.40.0
 aiohttp
