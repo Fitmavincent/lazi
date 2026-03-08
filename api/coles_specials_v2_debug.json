@@ -1,0 +1,586 @@
+{
+  "synced_at": "2025-07-26T09:38:49.851063+00:00",
+  "count": 58,
+  "data": [
+    {
+      "name": "Arnott's Shapes Cracker Biscuits Original Barbecue",
+      "price": 2.0,
+      "price_per_unit": "$1.14 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/arnott's-shapes-cracker-biscuits-original-barbecue-175g-2734446",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F2%2F2734446.jpg&w=256&q=90",
+      "discount": "Save $2.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Glow Lab Body Wash Vanilla Cream & Coconut",
+      "price": 9.0,
+      "price_per_unit": "$1.00 per 100mL",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/glow-lab-body-wash-vanilla-cream-and-coconut-900ml-6347634",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F6%2F6347634.jpg&w=256&q=90",
+      "discount": "Save $9.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Glow Lab Hand Wash Antibacterial Lemongrass & Lime",
+      "price": 4.0,
+      "price_per_unit": "$1.33 per 100mL",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/glow-lab-hand-wash-antibacterial-lemongrass-and-lime-300ml-8967505",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F8%2F8967505.jpg&w=256&q=90",
+      "discount": "Save $4.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Glow Lab Coconut & Sandalwood Body Wash",
+      "price": 9.0,
+      "price_per_unit": "$1.00 per 100mL",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/glow-lab-coconut-and-sandalwood-body-wash-900ml-4309736",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F4%2F4309736.jpg&w=256&q=90",
+      "discount": "Save $9.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Glow Lab Citrus & Bergamot Body Wash",
+      "price": 9.0,
+      "price_per_unit": "$1.00 per 100mL",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/glow-lab-citrus-and-bergamot-body-wash-900ml-4309714",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F4%2F4309714.jpg&w=256&q=90",
+      "discount": "Save $9.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Glow Lab Hand Wash Refill Orange & White Lotus",
+      "price": 9.0,
+      "price_per_unit": "$1.00 per 100mL",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/glow-lab-hand-wash-refill-orange-and-white-lotus-900ml-8930630",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F8%2F8930630.jpg&w=256&q=90",
+      "discount": "Save $9.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Glow Lab Rhubarb & Rose Body Wash",
+      "price": 9.0,
+      "price_per_unit": "$1.00 per 100mL",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/glow-lab-rhubarb-and-rose-body-wash-900ml-4309703",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F4%2F4309703.jpg&w=256&q=90",
+      "discount": "Save $9.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Glow Lab Body Wash Oat Milk- Tonka Bean & Vanilla",
+      "price": 9.0,
+      "price_per_unit": "$1.00 per 100mL",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/glow-lab-body-wash-oat-milk-tonka-bean-and-vanilla-900ml-8963231",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F8%2F8963231.jpg&w=256&q=90",
+      "discount": "Save $9.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Glow Lab Coconut & Spiced Fig Hand Wash",
+      "price": 4.0,
+      "price_per_unit": "$1.33 per 100mL",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/glow-lab-coconut-and-spiced-fig-hand-wash-300ml-4309576",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F4%2F4309576.jpg&w=256&q=90",
+      "discount": "Save $4.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Glow Lab Amber & Sage Hand Wash",
+      "price": 4.0,
+      "price_per_unit": "$1.33 per 100mL",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/glow-lab-amber-and-sage-hand-wash-300ml-4309587",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F4%2F4309587.jpg&w=256&q=90",
+      "discount": "Save $4.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Glow Lab Hand Wash Refill Antibacterial Lemongrass & Lime",
+      "price": 9.0,
+      "price_per_unit": "$1.00 per 100mL",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/glow-lab-hand-wash-refill-antibacterial-lemongrass-and-lime-900ml-8967458",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F8%2F8967458.jpg&w=256&q=90",
+      "discount": "Save $9.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Red Rock Deli Potato Chips Sweet Chilli And Sour Cream",
+      "price": 3.15,
+      "price_per_unit": "$1.91 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/red-rock-deli-potato-chips-sweet-chilli-and-sour-cream-165g-1786182",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F1%2F1786182.jpg&w=256&q=90",
+      "discount": "Save $3.15",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Arnott's Shapes Cracker Biscuits Original Pizza",
+      "price": 2.0,
+      "price_per_unit": "$1.05 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/arnott's-shapes-cracker-biscuits-original-pizza-190g-2734457",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F2%2F2734457.jpg&w=256&q=90",
+      "discount": "Save $2.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Sunbites Grain Waves Chips Sour Cream & Chives",
+      "price": 2.5,
+      "price_per_unit": "$1.47 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/sunbites-grain-waves-chips-sour-cream-and-chives-170g-3706741",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F3%2F3706741.jpg&w=256&q=90",
+      "discount": "Save $2.50",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Mighty Soft Cafe Fruit Loaf",
+      "price": 3.95,
+      "price_per_unit": "$0.66 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/mighty-soft-cafe-fruit-loaf-600g-7111917",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F7%2F7111917.jpg&w=256&q=90",
+      "discount": "Save $3.95",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Tip Top Muffins English Original",
+      "price": 3.1,
+      "price_per_unit": "$0.78 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/tip-top-muffins-english-original-400g-332394",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F3%2F332394.jpg&w=256&q=90",
+      "discount": "Save $3.10",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Red Rock Deli Honey Soy Chicken Potato Chips",
+      "price": 3.15,
+      "price_per_unit": "$1.91 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/red-rock-deli-honey-soy-chicken-potato-chips-165g-1786160",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F1%2F1786160.jpg&w=256&q=90",
+      "discount": "Save $3.15",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Kinder Bueno Chocolate Bar",
+      "price": 1.5,
+      "price_per_unit": "$3.49 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/kinder-bueno-chocolate-bar-43g-5216969",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F5%2F5216969.jpg&w=256&q=90",
+      "discount": "Save $1.50",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Arnott's Shapes Cracker Biscuits Original Chicken Crimpy",
+      "price": 2.0,
+      "price_per_unit": "$1.14 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/arnott's-shapes-cracker-biscuits-original-chicken-crimpy-175g-8638285",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F8%2F8638285.jpg&w=256&q=90",
+      "discount": "Save $2.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Viva Paper Towel White",
+      "price": 2.25,
+      "price_per_unit": "$1.88 per 100ea",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/viva-paper-towel-white-2-pack-9333523",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F9%2F9333523.jpg&w=256&q=90",
+      "discount": "Save $2.25",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cobs Lightly Salted Slightly Sweet Popcorn",
+      "price": 1.75,
+      "price_per_unit": "$1.46 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cobs-lightly-salted-slightly-sweet-popcorn-120g-6772389",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F6%2F6772389.jpg&w=256&q=90",
+      "discount": "Save $1.75",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Mcvities Digestives Biscuits Plain",
+      "price": 2.75,
+      "price_per_unit": "$0.77 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/mcvities-digestives-biscuits-plain-355g-6066602",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F6%2F6066602.jpg&w=256&q=90",
+      "discount": "Save $2.75",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Sorbent 3 PLY Silky White Toilet Paper",
+      "price": 7.0,
+      "price_per_unit": "$0.24 per 100ea",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/sorbent-3-ply-silky-white-toilet-paper-16-pack-3974092",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F3%2F3974092.jpg&w=256&q=90",
+      "discount": "Save $7.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Mcvities Digestives Biscuits Milk Chocolate",
+      "price": 2.75,
+      "price_per_unit": "$1.03 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/mcvities-digestives-biscuits-milk-chocolate-266g-5854739",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F5%2F5854739.jpg&w=256&q=90",
+      "discount": "Save $2.75",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Campbell's Real Stock Chicken",
+      "price": 2.25,
+      "price_per_unit": "$0.23 per 100mL",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/campbell's-real-stock-chicken-1l-8157935",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F8%2F8157935.jpg&w=256&q=90",
+      "discount": "Save $2.25",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Lipton Ice Tea Peach Tea Iced Tea Bottle",
+      "price": 2.75,
+      "price_per_unit": "$1.83 per 1L",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/lipton-ice-tea-peach-tea-iced-tea-bottle-1.5l-6344308",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F6%2F6344308.jpg&w=256&q=90",
+      "discount": "Save $2.75",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Sanitarium Weet-bix Breakfast Cereal",
+      "price": 2.2,
+      "price_per_unit": "$0.38 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/sanitarium-weet-bix-breakfast-cereal-575g-2001784",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F2%2F2001784.jpg&w=256&q=90",
+      "discount": "Save $2.20",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cadbury Turkish Delight Chocolate Bar",
+      "price": 1.2,
+      "price_per_unit": "$2.40 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cadbury-turkish-delight-chocolate-bar-50g-136498",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F1%2F136498.jpg&w=256&q=90",
+      "discount": "Save $1.80",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Real Foods Original Corn Thins",
+      "price": 1.05,
+      "price_per_unit": "$0.70 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/real-foods-original-corn-thins-150g-7112308",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F7%2F7112308.jpg&w=256&q=90",
+      "discount": "Save $1.05",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cadbury Twirl Chocolate Sharepack 12 Pack",
+      "price": 3.5,
+      "price_per_unit": "$2.08 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cadbury-twirl-chocolate-sharepack-12-pack-168g-2353078",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F2%2F2353078.jpg&w=256&q=90",
+      "discount": "Save $3.50",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Campbell's Real Stock Chicken Stock Salt Reduced",
+      "price": 2.25,
+      "price_per_unit": "$0.23 per 100mL",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/campbell's-real-stock-chicken-stock-salt-reduced-1l-8837306",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F8%2F8837306.jpg&w=256&q=90",
+      "discount": "Save $2.25",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Mcvities Digestives Biscuits Dark Chocolate",
+      "price": 2.75,
+      "price_per_unit": "$1.03 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/mcvities-digestives-biscuits-dark-chocolate-266g-5854717",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F5%2F5854717.jpg&w=256&q=90",
+      "discount": "Save $2.75",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Arnotts Teevee Snacks Biscuits Malt Sticks",
+      "price": 2.75,
+      "price_per_unit": "$1.57 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/arnotts-teevee-snacks-biscuits-malt-sticks-175g-9503543",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F9%2F9503543.jpg&w=256&q=90",
+      "discount": "Save $2.75",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Red Rock Deli Potato Chips Sea Salt",
+      "price": 3.15,
+      "price_per_unit": "$1.91 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/red-rock-deli-potato-chips-sea-salt-165g-1786150",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F1%2F1786150.jpg&w=256&q=90",
+      "discount": "Save $3.15",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cadbury Dairy Milk Chocolate Bar",
+      "price": 1.2,
+      "price_per_unit": "$2.40 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cadbury-dairy-milk-chocolate-bar-50g-5072665",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F5%2F5072665.jpg&w=256&q=90",
+      "discount": "Save $1.80",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cadbury Old Gold 70% Cocoa Dark Chocolate Block",
+      "price": 4.0,
+      "price_per_unit": "$2.22 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cadbury-old-gold-70percent-cocoa-dark-chocolate-block-180g-2350579",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F2%2F2350579.jpg&w=256&q=90",
+      "discount": "Save $4.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cadbury Dairy Milk Chocolate Caramello Koala Sharepack 12 Pack",
+      "price": 3.5,
+      "price_per_unit": "$1.94 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cadbury-dairy-milk-chocolate-caramello-koala-sharepack-12-pack-180g-2353056",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F2%2F2353056.jpg&w=256&q=90",
+      "discount": "Save $3.50",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cadbury Dairy Milk Chocolate Roll Pack",
+      "price": 1.2,
+      "price_per_unit": "$2.18 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cadbury-dairy-milk-chocolate-roll-pack-55g-5072676",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F5%2F5072676.jpg&w=256&q=90",
+      "discount": "Save $1.80",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cadbury Twirl Chocolate Bar",
+      "price": 1.2,
+      "price_per_unit": "$3.08 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cadbury-twirl-chocolate-bar-39g-5216313",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F5%2F5216313.jpg&w=256&q=90",
+      "discount": "Save $1.80",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cadbury Old Gold Roast Almond Dark Chocolate Block",
+      "price": 4.0,
+      "price_per_unit": "$2.22 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cadbury-old-gold-roast-almond-dark-chocolate-block-180g-2350535",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F2%2F2350535.jpg&w=256&q=90",
+      "discount": "Save $4.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Sanitarium Weet-bix Bites Wild Berry Breakfast Cereal",
+      "price": 3.0,
+      "price_per_unit": "$0.60 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/sanitarium-weet-bix-bites-wild-berry-breakfast-cereal-500g-4951398",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F4%2F4951398.jpg&w=256&q=90",
+      "discount": "Save $3.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cadbury Picnic Chocolate Bar",
+      "price": 1.2,
+      "price_per_unit": "$2.61 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cadbury-picnic-chocolate-bar-46g-136556",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F1%2F136556.jpg&w=256&q=90",
+      "discount": "Save $1.80",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cobs Gluten Free Popcorn Sea Salt",
+      "price": 1.75,
+      "price_per_unit": "$2.19 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cobs-gluten-free-popcorn-sea-salt-80g-6772593",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F6%2F6772593.jpg&w=256&q=90",
+      "discount": "Save $1.75",
+      "retailer": "Coles"
+    },
+    {
+      "name": "John West Tempters Tuna in Olive Oil",
+      "price": 1.35,
+      "price_per_unit": "$14.21 per 1kg",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/john-west-tempters-tuna-in-olive-oil-95g-5558736",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F5%2F5558736.jpg&w=256&q=90",
+      "discount": "Save $1.35",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Arnott's Shapes Cracker Biscuits Original Cheese & Bacon",
+      "price": 2.0,
+      "price_per_unit": "$1.11 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/arnott's-shapes-cracker-biscuits-original-cheese-and-bacon-180g-8638241",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F8%2F8638241.jpg&w=256&q=90",
+      "discount": "Save $2.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cadbury Cherry Ripe Dark Chocolate Bar",
+      "price": 1.2,
+      "price_per_unit": "$2.73 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cadbury-cherry-ripe-dark-chocolate-bar-44g-7843880",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F7%2F7843880.jpg&w=256&q=90",
+      "discount": "Save $1.80",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Sunbites Grain Waves Chips Sweet Chilli",
+      "price": 2.5,
+      "price_per_unit": "$1.47 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/sunbites-grain-waves-chips-sweet-chilli-170g-3706763",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F3%2F3706763.jpg&w=256&q=90",
+      "discount": "Save $2.50",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Streets Golden Gaytime Ice Cream Sticks 4 pack",
+      "price": 5.0,
+      "price_per_unit": "$1.25 per 100mL",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/streets-golden-gaytime-ice-cream-sticks-4-pack-400ml-9611648",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F9%2F9611648.jpg&w=256&q=90",
+      "discount": "Save $5.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cadbury Old Gold Jamaica Rum N Raisin Dark Chocolate Block",
+      "price": 4.0,
+      "price_per_unit": "$2.22 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cadbury-old-gold-jamaica-rum-n-raisin-dark-chocolate-block-180g-2350557",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F2%2F2350557.jpg&w=256&q=90",
+      "discount": "Save $4.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cadbury Old Gold Original Dark Chocolate Block",
+      "price": 4.0,
+      "price_per_unit": "$2.22 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cadbury-old-gold-original-dark-chocolate-block-180g-2350568",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F2%2F2350568.jpg&w=256&q=90",
+      "discount": "Save $4.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "UP&GO Protein Energize Choc Hit 6 x 250ml",
+      "price": 6.3,
+      "price_per_unit": "$4.20 per 1L",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/upandgo-protein-energize-choc-hit-6-x-250ml-1.5l-8951924",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F8%2F8951924.jpg&w=256&q=90",
+      "discount": "Save $6.30",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Arnott's Shapes Cracker Biscuits Original Cheddar",
+      "price": 2.0,
+      "price_per_unit": "$1.14 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/arnott's-shapes-cracker-biscuits-original-cheddar-175g-8638263",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F8%2F8638263.jpg&w=256&q=90",
+      "discount": "Save $2.00",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cobs Gluten Free Popcorn Butter",
+      "price": 1.75,
+      "price_per_unit": "$1.94 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cobs-gluten-free-popcorn-butter-90g-3434856",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F3%2F3434856.jpg&w=256&q=90",
+      "discount": "Save $1.75",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Uncle Tobys Le Snak Tasty Cheese Dip & Crackers School Lunchbox Snacks",
+      "price": 2.75,
+      "price_per_unit": "$2.08 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/uncle-tobys-le-snak-tasty-cheese-dip-and-crackers-school-lunchbox-snacks-132g-4954750",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F4%2F4954750.jpg&w=256&q=90",
+      "discount": "Save $2.75",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Kinder Bueno White Chocolate Bar",
+      "price": 1.5,
+      "price_per_unit": "$3.85 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/kinder-bueno-white-chocolate-bar-39g-2877432",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F2%2F2877432.jpg&w=256&q=90",
+      "discount": "Save $1.50",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Cadbury Dairy Milk Chocolate Sharepack 12 Pack",
+      "price": 3.5,
+      "price_per_unit": "$2.43 per 100g",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/cadbury-dairy-milk-chocolate-sharepack-12-pack-144g-3768840",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F3%2F3768840.jpg&w=256&q=90",
+      "discount": "Save $3.50",
+      "retailer": "Coles"
+    },
+    {
+      "name": "Bulla Creamy Classics Vanilla Ice Cream Tub",
+      "price": 5.5,
+      "price_per_unit": "$0.28 per 100mL",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/bulla-creamy-classics-vanilla-ice-cream-tub-2l-9486590",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F9%2F9486590.jpg&w=256&q=90",
+      "discount": "Save $5.50",
+      "retailer": "Coles"
+    },
+    {
+      "name": "John West Tempters Tuna Chunks in Springwater",
+      "price": 1.35,
+      "price_per_unit": "$14.21 per 1kg",
+      "price_was": 0,
+      "product_link": "https://www.coles.com.au/product/john-west-tempters-tuna-chunks-in-springwater-95g-7532777",
+      "image": "https://www.coles.com.au/_next/image?url=https%3A%2F%2Fcdn.productimages.coles.com.au%2Fproductimages%2F7%2F7532777.jpg&w=256&q=90",
+      "discount": "Save $1.35",
+      "retailer": "Coles"
+    }
+  ]
+}

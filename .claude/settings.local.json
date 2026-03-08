@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(/c/Users/fitma/.pyenv/pyenv-win/versions/3.12.1/python.exe:*)",
+      "Bash(ls:*)",
+      "Bash(/d/src/lazi/api/lazi-env/Scripts/python.exe:*)",
+      "Bash(git:*)"
+    ]
+  }
+}
