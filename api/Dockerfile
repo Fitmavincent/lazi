@@ -1,10 +1,10 @@
-FROM python:3.12
+FROM python:3.12-bookworm
 
 WORKDIR /src/api
 
 COPY ./requirements.txt /src/api/requirements.txt
 
-RUN pip install --no-cache-dir --upgrade -r /src/api/requirements.txt
+RUN pip install --no-cache-dir --upgrade setuptools -r /src/api/requirements.txt
 RUN playwright install --with-deps
 RUN patchright install --with-deps
 RUN scrapling install
