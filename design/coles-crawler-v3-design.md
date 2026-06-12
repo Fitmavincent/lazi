@@ -2,7 +2,17 @@
 
 **Status:** Active
 **Context:** Multi-session reference document for improving Coles half-price specials crawler
-**Last updated:** 2026-03-07
+**Last updated:** 2026-06-12
+
+> **2026-06-12 update:** V2.5 rewritten on scrapling 0.4 (patched Chromium,
+> persistent `AsyncStealthySession`) and the machine-sleep problem solved with
+> fetch-triggered background refresh instead of GitHub Actions cron. See
+> [adr-001-scrapling-0.4-stealth-stack.md](adr-001-scrapling-0.4-stealth-stack.md),
+> [adr-002-fetch-triggered-refresh.md](adr-002-fetch-triggered-refresh.md) and
+> [session-2026-06-12-coles-v2_5-fix.md](session-2026-06-12-coles-v2_5-fix.md).
+> Sections below describing Camoufox-era V2.5 internals and the Section 4
+> scheduler options are historical context; the frozen-API CONSTRAINT section
+> remains authoritative.
 
 ---
 

@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest
+pytest-asyncio
+httpx<0.28  # starlette 0.36 TestClient needs the old httpx 'app' kwarg

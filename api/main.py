@@ -1,11 +1,16 @@
-from fastapi import FastAPI, Query, Depends, HTTPException
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from services.service import Service
 from services.special_crawler.oz_crawler import OzCrawler
-from services.special_crawler.coles_crawler import ColesCrawler
-from services.special_crawler.coles_crawler_v2 import ColesV2Crawler
-from services.special_crawler.coles_crawler_v2_5 import ColesV25Crawler
-from services.special_crawler.woolies_crawler import WooliesCrawler
+from services.registry import (
+    coles_crawler_service,
+    coles_v2_crawler_service,
+    coles_v2_5_crawler_service,
+    woolies_crawler_service,
+    coles_refresh,
+    woolies_refresh,
+)
+from services.freshness import is_stale, freshness_report
 from typing import Annotated
 from scheduler import scheduler, setup_scheduler
 from pydantic import BaseModel
@@ -13,10 +18,6 @@ import logging
 
 service = Service()
 oz_crawler_service = OzCrawler()
-coles_crawler_service = ColesCrawler()
-coles_v2_crawler_service = ColesV2Crawler()
-coles_v2_5_crawler_service = ColesV25Crawler()
-woolies_crawler_service = WooliesCrawler()
 
 # Internal metadata fields added by the V2.5 crawler that must be stripped
 # before returning to callers — the frozen API shape must not change.
@@ -49,17 +50,34 @@ async def start_scheduler():
         logger.error(f"Failed to start scheduler: {e}")
 
 @app.on_event("shutdown")
-async def shutdown_scheduler():
-    if scheduler.running:
-        scheduler.shutdown()
+async def shutdown_services():
+    try:
+        if scheduler.running:
+            scheduler.shutdown(wait=False)
+    except Exception as e:
+        logger.warning(f"Scheduler shutdown error: {e}")
+    try:
+        await coles_refresh.shutdown()
+        await woolies_refresh.shutdown()
+    except Exception as e:
+        logger.warning(f"Refresh manager shutdown error: {e}")
 
 @app.get("/")
 def read_root():
     return {"message": "This is Vince API server."}
 
 @app.get("/health")
-def read_health():
-    return {"status": "ok"}
+async def read_health():
+    """Freshness diagnostics live here ONLY — data endpoints' shape is frozen."""
+    coles_data = await coles_v2_5_crawler_service.fetch_data()
+    woolies_data = await woolies_crawler_service.fetch_data()
+    return {
+        "status": "ok",
+        "data_freshness": {
+            "coles": freshness_report(coles_data) | coles_refresh.status(),
+            "woolies": freshness_report(woolies_data) | woolies_refresh.status(),
+        },
+    }
 
 @app.get("/calculate/{input}")
 def read_calculate(input: int):
@@ -72,40 +90,43 @@ def read_oz_data(page: int = 20, wish: Annotated[list[str] | None, Query()] = No
 
 @app.get("/coles-data")
 async def read_coles_data():
-    """Read from saved JSON file"""
+    """Read from saved JSON file; trigger background re-crawl when stale."""
     data = await coles_crawler_service.fetch_data()
+    coles_refresh.trigger_if_needed(is_stale(data))
     if not data:
         raise HTTPException(status_code=404, detail="No data available")
-    return data
+    return {k: v for k, v in data.items() if k not in _INTERNAL_FIELDS}
 
 @app.post("/coles-data/sync")
 async def force_sync_coles_data():
-    """Force sync data from Coles API"""
-    data = await coles_crawler_service.force_sync()
+    """Force sync Coles data (routed to the V2.5 crawler)"""
+    data = await coles_v2_5_crawler_service.force_sync()
     if not data:
         raise HTTPException(status_code=500, detail="Failed to sync data")
     return {"status": "success", "message": "Data synced successfully"}
 
 @app.get("/coles-data-v2")
 async def read_coles_data_v2():
-    """Read from saved JSON file (V2 Scrapling crawler)"""
+    """Read from saved JSON file; trigger background re-crawl when stale."""
     data = await coles_v2_crawler_service.fetch_data()
+    coles_refresh.trigger_if_needed(is_stale(data))
     if not data:
         raise HTTPException(status_code=404, detail="No data available")
-    return data
+    return {k: v for k, v in data.items() if k not in _INTERNAL_FIELDS}
 
 @app.post("/coles-data-v2/sync")
 async def force_sync_coles_data_v2():
-    """Force sync data from Coles website using Scrapling (V2)"""
-    data = await coles_v2_crawler_service.force_sync()
+    """Force sync Coles data (routed to the V2.5 crawler)"""
+    data = await coles_v2_5_crawler_service.force_sync()
     if not data:
         raise HTTPException(status_code=500, detail="Failed to sync data")
     return {"status": "success", "message": "Data synced successfully"}
 
 @app.get("/coles-data-v2-5")
 async def read_coles_data_v2_5():
-    """Read Coles half-price specials from R2 (V2.5 crawler)"""
+    """Read Coles half-price specials from R2; trigger background re-crawl when stale."""
     data = await coles_v2_5_crawler_service.fetch_data()
+    coles_refresh.trigger_if_needed(is_stale(data))
     if not data:
         raise HTTPException(status_code=404, detail="No data available")
     return {k: v for k, v in data.items() if k not in _INTERNAL_FIELDS}
@@ -120,11 +141,12 @@ async def force_sync_coles_data_v2_5():
 
 @app.get("/woolies-data")
 async def read_woolies_data():
-    """Read from saved JSON file"""
+    """Read from saved JSON file; trigger background re-crawl when stale."""
     data = await woolies_crawler_service.fetch_data()
+    woolies_refresh.trigger_if_needed(is_stale(data))
     if not data:
         raise HTTPException(status_code=404, detail="No data available")
-    return data
+    return {k: v for k, v in data.items() if k not in _INTERNAL_FIELDS}
 
 @app.post("/woolies-data/sync")
 async def force_sync_woolies_data():
@@ -143,18 +165,26 @@ async def can_force_sync(request: PasswordRequest):
         raise HTTPException(status_code=403, detail="Tsk Tsk! Nice try")
     return {"status": "success", "message": "Password validated"}
 
-@app.get("/test/coles-crawl")
-async def test_coles_crawl():
-    """Test endpoint for Coles crawler without storage"""
-    raw_data = await coles_crawler_service.crawl_coles_pipeline()
-    if not raw_data:
-        raise HTTPException(status_code=500, detail="Failed to fetch Coles data")
-    transformed_data = coles_crawler_service.transform_product_data(raw_data)
-    return {
-        "raw_samples": raw_data['results'][:5] if raw_data['results'] else None,
-        "transformed_samples": transformed_data['data'][:5] if transformed_data['data'] else None,
-        "total_products": len(transformed_data['data'])
-    }
+@app.get("/test/coles-crawl-v2-5")
+async def test_coles_crawl_v2_5():
+    """Test endpoint for the Coles V2.5 crawler without storage — limited to 2 pages"""
+    original_max_pages = coles_v2_5_crawler_service.max_pages
+    coles_v2_5_crawler_service.max_pages = 2
+    try:
+        result = await coles_v2_5_crawler_service.crawl_pipeline()
+        return {
+            "pagination_info": {
+                "pages_attempted": result["pages_attempted"],
+                "pages_succeeded": result["pages_succeeded"],
+                "pages_blocked": result["pages_blocked"],
+                "crawler_type": "Scrapling AsyncStealthySession",
+            },
+            "samples": result["data"][:5],
+            "total_products": result["count"],
+            "crawl_status": result["crawl_status"],
+        }
+    finally:
+        coles_v2_5_crawler_service.max_pages = original_max_pages
 
 @app.get("/test/woolies-crawl")
 async def test_woolies_crawl():
@@ -182,38 +212,3 @@ async def test_woolies_crawl():
         "total_products": len(transformed_data['data']),
         "total_half_price_products": len([p for p in products if p.get('price_was')])
     }
-
-@app.get("/test/coles-crawl-v2")
-async def test_coles_crawl_v2():
-    """Test endpoint for Coles V2 crawler (Scrapling) without storage - limited to 3 pages for testing"""
-    # Temporarily set to 3 pages for testing
-    original_max_pages = coles_v2_crawler_service.max_pages
-    coles_v2_crawler_service.max_pages = 3
-
-    try:
-        raw_products = await coles_v2_crawler_service.crawl_coles_pipeline()
-        if not raw_products:
-            raise HTTPException(status_code=500, detail="Failed to fetch Coles V2 data")
-
-        transformed_data = coles_v2_crawler_service.transform_product_data(raw_products)
-
-        return {
-            "pagination_info": {
-                "pages_attempted": coles_v2_crawler_service.max_pages,
-                "products_found": len(raw_products),
-                "crawler_type": "Scrapling StealthyFetcher",
-                "max_pages_production": original_max_pages
-            },
-            "raw_samples": raw_products[:5] if raw_products else None,
-            "transformed_samples": transformed_data['data'][:5] if transformed_data['data'] else None,
-            "total_products": len(transformed_data['data']),
-            "sample_product_details": {
-                "has_prices": len([p for p in raw_products if p.get('price', 0) > 0]),
-                "has_discounts": len([p for p in raw_products if p.get('discount')]),
-                "has_images": len([p for p in raw_products if p.get('image')]),
-                "has_links": len([p for p in raw_products if p.get('product_link')])
-            }
-        }
-    finally:
-        # Restore original max_pages
-        coles_v2_crawler_service.max_pages = original_max_pages

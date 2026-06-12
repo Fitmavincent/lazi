@@ -1,24 +1,28 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from services.special_crawler.coles_crawler import ColesCrawler
-from services.special_crawler.coles_crawler_v2 import ColesV2Crawler
-from services.special_crawler.woolies_crawler import WooliesCrawler
-import asyncio
+from services.registry import (
+    coles_v2_5_crawler_service,
+    woolies_crawler_service,
+    coles_refresh,
+    woolies_refresh,
+)
+from services.freshness import is_stale
 from datetime import datetime
 import logging
 
-# Set up logging with more detailed configuration
+# NOTE: This scheduler only fires while the Fly.io machine happens to be
+# awake (min_machines_running = 0, auto_stop_machines = true). The primary
+# refresh path is the stale-data trigger on the GET data endpoints — see
+# services/refresh_manager.py. These jobs are a bonus when the machine is up.
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger('scheduler')
-
-# Ensure the logger level is set (sometimes needed despite basicConfig)
 logger.setLevel(logging.INFO)
 
-# Create a global scheduler instance
 scheduler = AsyncIOScheduler(
     timezone='Australia/Sydney',
     job_defaults={
@@ -27,102 +31,50 @@ scheduler = AsyncIOScheduler(
     }
 )
 
-async def test_cron_job():
-    logger.info(f"Test cron job started at {datetime.now()}")
-    try:
-        await asyncio.sleep(5)
-        logger.info("Test job completed successfully")
-        print(f"Test job executed at {datetime.now()}")  # Direct console output
-        return {"status": "success"}
-    except Exception as e:
-        logger.error(f"Test job failed: {e}")
-        return {"status": "failed"}
-
-async def fetch_coles_data():
-    logger.info(f"Running Coles crawler cron job at {datetime.now()}")
-    crawler = ColesCrawler()
-    raw_data = await crawler.crawl_coles_pipeline()
-    if raw_data:
-        transformed_data = crawler.transform_product_data(raw_data)
-        crawler.save_to_file(transformed_data)
-        logger.info(f"Coles crawler completed at {datetime.now()}")
-        return {"status": "success"}
-    return {"status": "failed"}
-
-async def fetch_coles_data_v2():
-    logger.info(f"Running Coles V2 crawler (Scrapling) cron job at {datetime.now()}")
-    crawler = ColesV2Crawler()
-    try:
-        transformed_data = await crawler.force_sync()
-        if transformed_data:
-            logger.info(f"Coles V2 crawler completed at {datetime.now()}")
-            return {"status": "success"}
-        else:
-            logger.error("Coles V2 crawler failed to retrieve data")
-            return {"status": "failed"}
-    except Exception as e:
-        logger.error(f"Coles V2 crawler failed with exception: {e}")
-        return {"status": "failed"}
+async def fetch_coles_data_v2_5():
+    """Wednesday crawl — goes through the shared RefreshManager so it can
+    never run concurrently with a fetch-triggered refresh."""
+    logger.info(f"Cron: Coles V2.5 crawl at {datetime.now()}")
+    started = coles_refresh.trigger_if_needed(stale=True)
+    if not started:
+        logger.info("Cron: Coles refresh already running or cooling down — skipped")
 
 async def fetch_woolies_data():
-    logger.info(f"Running Woolies crawler cron job at {datetime.now()}")
-    crawler = WooliesCrawler()
-    raw_data = await crawler.crawl_woolies_pipeline()
-    if raw_data:
-        transformed_data = crawler.transform_product_data(raw_data)
-        crawler.save_to_file(transformed_data)
-        logger.info(f"Woolies crawler completed at {datetime.now()}")
-        return {"status": "success"}
-    return {"status": "failed"}
+    logger.info(f"Cron: Woolies crawl at {datetime.now()}")
+    started = woolies_refresh.trigger_if_needed(stale=True)
+    if not started:
+        logger.info("Cron: Woolies refresh already running or cooling down — skipped")
+
+async def conditional_retry():
+    """Wednesday 06:00 — re-crawl only if the midnight run failed or never ran."""
+    logger.info(f"Cron: conditional retry check at {datetime.now()}")
+    coles_data = await coles_v2_5_crawler_service.fetch_data()
+    coles_refresh.trigger_if_needed(is_stale(coles_data))
+    woolies_data = await woolies_crawler_service.fetch_data()
+    woolies_refresh.trigger_if_needed(is_stale(woolies_data))
 
 def setup_scheduler():
     if not scheduler.running:
         logger.info("Setting up scheduler...")
 
-        # Add test job
-        # scheduler.add_job(
-        #     test_cron_job,
-        #     'interval',
-        #     seconds=30,  # Changed to 30 seconds for easier testing
-        #     id='test_cron_job',
-        #     replace_existing=True,
-        #     next_run_time=datetime.now()  # Start immediately
-        # )
-
-        # Add production jobs
-        scheduler.add_job(
-            fetch_coles_data,
-            CronTrigger(
-                day_of_week='wed',
-                hour=0,
-                minute=0,
-                timezone='Australia/Sydney'
-            ),
-            id='fetch_coles_data',
-            misfire_grace_time=None
-        )
-
-        scheduler.add_job(
-            fetch_coles_data_v2,
-            CronTrigger(
-                day_of_week='wed',
-                hour=0,
-                minute=30,  # Run 30 minutes after the original crawler
-                timezone='Australia/Sydney'
-            ),
-            id='fetch_coles_data_v2',
-            misfire_grace_time=None
-        )
-
         scheduler.add_job(
             fetch_woolies_data,
-            CronTrigger(
-                day_of_week='wed',
-                hour=0,
-                minute=0,
-                timezone='Australia/Sydney'
-            ),
+            CronTrigger(day_of_week='wed', hour=0, minute=5, timezone='Australia/Sydney'),
             id='fetch_woolies_data',
+            misfire_grace_time=None
+        )
+
+        scheduler.add_job(
+            fetch_coles_data_v2_5,
+            CronTrigger(day_of_week='wed', hour=0, minute=15, timezone='Australia/Sydney'),
+            id='fetch_coles_data_v2_5',
+            misfire_grace_time=None
+        )
+
+        scheduler.add_job(
+            conditional_retry,
+            CronTrigger(day_of_week='wed', hour=6, minute=0, timezone='Australia/Sydney'),
+            id='conditional_retry',
             misfire_grace_time=None
         )
 
