@@ -260,12 +260,12 @@ class ColesV25Crawler:
             timezone_id="Australia/Sydney",
             google_search=True,
             timeout=60000,
-            wait=1500,
-            # Skip fonts/images/media/stylesheets (NOT xhr/fetch) — the product
-            # data lives in the DOM (image URLs come from srcset attributes,
-            # which remain present), so this is safe and cuts page load on
-            # Fly's slower datacenter link to fit more pages in the budget.
-            disable_resources=True,
+            wait=3000,
+            # NB: do NOT set disable_resources here — Coles is behind Incapsula,
+            # whose anti-bot JS challenge needs CSS/JS to complete. Blocking
+            # those resources breaks the handshake and the page gets blocked
+            # (observed: a full-budget crawl returned almost nothing). Coverage
+            # comes from the wall-time budget + page caps instead.
             # We run our own per-page retry/backoff loop — disable scrapling's
             # internal triple-retry so a blocked page fails fast instead of
             # stacking 3x60s timeouts per attempt.

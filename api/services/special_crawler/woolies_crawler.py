@@ -158,15 +158,15 @@ class WooliesCrawler:
             timezone_id="Australia/Sydney",
             google_search=True,
             timeout=PAGE_TIMEOUT_MS,
-            wait=1500,
+            wait=2500,
             # NB: no network_idle — Woolies loads ad/analytics traffic that
             # rarely goes idle, so network_idle made each page wait near the
             # full timeout. wait_selector on the product tile already
             # guarantees the category XHR has fired and been captured.
-            # disable_resources skips fonts/images/media/stylesheets but NOT
-            # xhr/fetch, so the category API we capture still fires — faster
-            # pages on Fly's slower link.
-            disable_resources=True,
+            # NB: no disable_resources either — wait_selector waits for the
+            # rendered <wc-product-tile>, which needs CSS/JS; blocking those
+            # would make every page wait out the full timeout. Coverage comes
+            # from the wall-time budget + page caps instead.
             capture_xhr=WOOLIES_XHR_PATTERN,
             retries=1,
         )

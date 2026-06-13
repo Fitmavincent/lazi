@@ -89,12 +89,15 @@ crawl (Coles 105, Woolies 140) because the 360s budget + slow per-page time on
 Fly capped the page count. Tuned for more coverage without weakening stealth,
 the frozen shape, or machine-sleep safety:
 
-- **`disable_resources=True`** on both sessions — skips fonts/images/media/
-  stylesheets (NOT xhr/fetch), so Coles tiles still render (image URLs come
-  from `srcset` attributes, still in the DOM) and the Woolies category XHR
-  still fires. Verified locally: identical extraction, fewer bytes over Fly's
-  link.
-- `wait` 3000/2500 → 1500ms; inter-page delay 3–7s → 2–4s (still randomised).
+- **`disable_resources` was tried and reverted.** It looked safe locally
+  (identical extraction) but on Fly it *halved* Coles' yield (61 vs 105) and
+  burned the full budget — Coles' Incapsula challenge needs CSS/JS to
+  complete, so blocking resources gets pages blocked. For Woolies it would
+  also stall, since `wait_selector` waits for the rendered `<wc-product-tile>`
+  which needs CSS/JS. Lesson: don't strip resources from anti-bot-protected,
+  render-dependent pages. Coverage comes from time + page caps only.
+- inter-page delay 3–7s → 2–4s (still randomised); settle `wait` kept at
+  3000/2500ms (Coles needs it for the Incapsula JS to settle).
 - `MAX_CRAWL_SECONDS` 360 → 600 — observed background crawls already ran
   15–20 min and completed on Fly, and the POST `/sync` path holds the
   connection open the whole crawl, so 10 min is safely within the window.
