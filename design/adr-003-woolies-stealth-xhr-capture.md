@@ -45,7 +45,29 @@ Goal: bring Woolies onto the **same** stealth foundation as Coles and emit the
    long enough to risk the machine sleeping mid-crawl). Dropped it:
    `wait_selector="wc-product-tile"` already guarantees the category XHR has
    fired and been captured. With that removed, 3 pages take ~30s locally.
-   `max_pages` set to 20 for parity with Coles (~600-700 products).
+   `max_pages` initially set to 20 for parity with Coles.
+
+### Production-safety bound (after live testing)
+
+Even with `network_idle` removed, live runs on Fly took 20+ minutes: Woolies
+throttles the datacenter IP enough that many pages never render the product
+tile, so `wait_selector` waited the full per-page timeout (60s) on each. A
+20+ min crawl risks the Fly machine being stopped before it saves. Bounded it:
+
+- **Per-page timeout 60s → 30s** (`PAGE_TIMEOUT_MS`): successful pages render
+  in a few seconds, so a blocked page now fails in 30s instead of 60s.
+- **`max_pages` 20 → 12**: enough for a few hundred products; caps the page
+  count.
+- **Global wall-time deadline `MAX_CRAWL_SECONDS = 360`**: the pipeline stops
+  paginating once exceeded and saves what it has (if above the 50-product
+  floor). Guarantees the crawl finishes and writes well inside the Fly
+  idle-stop window regardless of per-page slowness.
+- Block backoff shortened `[30,90] → [20,45]` to fit the tighter budget.
+
+Net effect: Woolies, like Coles, is subject to partial blocking from Fly's
+datacenter IP — it now degrades to a bounded **partial** save instead of a
+20+ min grind. The same wall-time bound is a good candidate to backport to the
+Coles V2.5 crawler.
 
 ## Decision
 

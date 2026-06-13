@@ -28,10 +28,18 @@ BLOCK_SIGNALS = [
 MIN_PRODUCTS_TO_SAVE = 50
 MIN_PRODUCTS_SUCCESS = 150
 MAX_PAGE_RETRIES = 2
-BLOCK_BACKOFF = [30, 90]
+BLOCK_BACKOFF = [20, 45]
 # Abort the crawl early after this many consecutive failed pages — once the
 # session is flagged, burning through the remaining pages only wastes time.
 MAX_CONSECUTIVE_FAILURES = 3
+# Per-page browser timeout (ms). Successful pages render the product tiles in a
+# few seconds; a blocked page never renders them, so a tight timeout lets it
+# fail fast instead of stalling the whole crawl for the full default 60s.
+PAGE_TIMEOUT_MS = 30000
+# Hard ceiling on total crawl wall-time. The Fly machine can be stopped a few
+# minutes after the triggering request goes idle, so the crawl must finish and
+# save well within that window rather than grinding through every page.
+MAX_CRAWL_SECONDS = 360
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -99,7 +107,7 @@ class ProductExtractor:
 class WooliesCrawler:
     def __init__(self):
         logger.info("Initializing WooliesCrawler (scrapling 0.4 / stealth XHR capture)")
-        self.max_pages = 20
+        self.max_pages = 12
         self.headless = True
         self.extractor = ProductExtractor()
 
@@ -132,11 +140,11 @@ class WooliesCrawler:
             locale="en-AU",
             timezone_id="Australia/Sydney",
             google_search=True,
-            timeout=60000,
+            timeout=PAGE_TIMEOUT_MS,
             wait=2500,
             # NB: no network_idle — Woolies loads ad/analytics traffic that
             # rarely goes idle, so network_idle made each page wait near the
-            # full 60s timeout. wait_selector on the product tile already
+            # full timeout. wait_selector on the product tile already
             # guarantees the category XHR has fired and been captured.
             capture_xhr=WOOLIES_XHR_PATTERN,
             retries=1,
@@ -224,11 +232,19 @@ class WooliesCrawler:
         pages_blocked = 0
         pages_attempted = 0
         consecutive_failures = 0
+        loop = asyncio.get_event_loop()
+        deadline = loop.time() + MAX_CRAWL_SECONDS
 
         async with self._new_session() as session:
             await self._warmup(session)
 
             for page_num in range(1, self.max_pages + 1):
+                if loop.time() >= deadline:
+                    logger.warning(
+                        f"Crawl wall-time budget ({MAX_CRAWL_SECONDS}s) exceeded — "
+                        f"stopping at page {page_num - 1} with {len(all_products)} products"
+                    )
+                    break
                 pages_attempted = page_num
                 logger.info(f"Page {page_num}/{self.max_pages}")
                 products = await self._crawl_page_with_retry(session, page_num)
