@@ -7,9 +7,12 @@ from datetime import datetime, timezone
 from scrapling.fetchers import AsyncStealthySession
 from urllib.parse import urljoin
 from core.settings import get_settings
+from services.special_crawler.discounts import classify_discount
 
 COLES_BASE_URL = "https://www.coles.com.au"
-COLES_SPECIAL_URL = f"{COLES_BASE_URL}/on-special?filter_Special=halfprice"
+# All on-special products (not just half price). Items are filtered to those
+# with a genuine was>now discount; each is tagged with a discount_type.
+COLES_SPECIAL_URL = f"{COLES_BASE_URL}/on-special"
 
 WARMUP_URLS = [
     "https://www.coles.com.au",
@@ -47,10 +50,14 @@ TILE_SELECTOR = 'section[data-testid="product-tile"]'
 MIN_PRODUCTS_TO_SAVE = 50
 MIN_PRODUCTS_SUCCESS = 200
 MAX_PAGE_RETRIES = 2
-BLOCK_BACKOFF = [30, 90]
+BLOCK_BACKOFF = [20, 45]
 # Abort the crawl early after this many consecutive failed pages — once the
 # session is flagged, burning through the remaining pages only wastes time.
 MAX_CONSECUTIVE_FAILURES = 3
+# Hard ceiling on total crawl wall-time. The Fly machine can be stopped a few
+# minutes after the triggering request goes idle, so the crawl must finish and
+# save well within that window rather than grinding through every page.
+MAX_CRAWL_SECONDS = 360
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -159,7 +166,7 @@ class ProductExtractor:
         if badge and badge.text and 'Save' in badge.text:
             return badge.text.strip()
         if was_price > current_price > 0:
-            return 'Half Price'
+            return f"Save ${was_price - current_price:.2f}"
         return ''
 
     def extract_link(self, element) -> str:
@@ -186,6 +193,11 @@ class ProductExtractor:
                     continue
                 price = self.extract_price(tile)
                 was_price, unit_price = self.extract_was_and_unit(tile)
+                # Only keep products with a genuine was>now discount. The
+                # on-special page also lists "Down Down"/everyday-low items
+                # that have no was-price and aren't a quantifiable discount.
+                if not (was_price > price > 0):
+                    continue
                 products.append({
                     'name': name,
                     'price': price,
@@ -194,11 +206,12 @@ class ProductExtractor:
                     'product_link': self.extract_link(tile),
                     'image': self.extract_image(tile),
                     'discount': self.extract_discount(tile, was_price, price),
+                    'discount_type': classify_discount(price, was_price),
                     'retailer': 'Coles',
                 })
             except Exception as exc:
                 logger.debug(f"Tile {i+1} extraction error: {exc}")
-        logger.info(f"Extracted {len(products)} products from page")
+        logger.info(f"Extracted {len(products)} discounted products from page")
         return products
 
 
@@ -277,7 +290,11 @@ class ColesV25Crawler:
     # ------------------------------------------------------------------
 
     async def _crawl_single_page(self, session, page_num: int) -> tuple[list[dict], bool]:
-        url = COLES_SPECIAL_URL if page_num == 1 else f"{COLES_SPECIAL_URL}&page={page_num}"
+        if page_num == 1:
+            url = COLES_SPECIAL_URL
+        else:
+            sep = '&' if '?' in COLES_SPECIAL_URL else '?'
+            url = f"{COLES_SPECIAL_URL}{sep}page={page_num}"
         response = await self._fetch(session, url, wait_selector=TILE_SELECTOR)
         if not response:
             return [], False
@@ -324,11 +341,19 @@ class ColesV25Crawler:
         pages_blocked = 0
         pages_attempted = 0
         consecutive_failures = 0
+        loop = asyncio.get_event_loop()
+        deadline = loop.time() + MAX_CRAWL_SECONDS
 
         async with self._new_session() as session:
             await self._warmup(session)
 
             for page_num in range(1, self.max_pages + 1):
+                if loop.time() >= deadline:
+                    logger.warning(
+                        f"Crawl wall-time budget ({MAX_CRAWL_SECONDS}s) exceeded — "
+                        f"stopping at page {page_num - 1} with {len(all_products)} products"
+                    )
+                    break
                 pages_attempted = page_num
                 logger.info(f"Page {page_num}/{self.max_pages}")
                 products = await self._crawl_page_with_retry(session, page_num)
@@ -377,7 +402,7 @@ class ColesV25Crawler:
             "pages_attempted": pages_attempted,
             "pages_succeeded": pages_succeeded,
             "pages_blocked": pages_blocked,
-            "crawler_version": "v2.5",
+            "crawler_version": "v2.6-alldiscounts",
             "count": n,
             "data": all_products,
         }

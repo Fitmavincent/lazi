@@ -27,26 +27,26 @@ def test_all_have_names_and_prices(products):
     assert all(p["price"] > 0 for p in products)
 
 
-def test_was_prices_extracted(products):
-    # The vast majority of half-price items must have a was-price
-    with_was = [p for p in products if p["price_was"] > 0]
-    assert len(with_was) >= len(products) * 0.9
-
-
-def test_was_price_consistency(products):
+def test_all_items_are_genuine_discounts(products):
+    # The crawler now keeps only products with a was>now discount
     for p in products:
-        if p["price_was"] > 0:
-            assert p["price_was"] > p["price"]
+        assert p["price_was"] > p["price"] > 0
 
 
-def test_frozen_product_shape(products):
+def test_frozen_product_shape_plus_discount_type(products):
     expected = {
         "name", "price", "price_per_unit", "price_was",
-        "product_link", "image", "discount", "retailer",
+        "product_link", "image", "discount", "retailer", "discount_type",
     }
     for p in products:
         assert set(p.keys()) == expected
         assert p["retailer"] == "Coles"
+
+
+def test_discount_type_values(products):
+    # snapshot is the half-price page, so every item classifies as half_price
+    for p in products:
+        assert p["discount_type"] in {"half_price", "beyond_half", "discount"}
 
 
 def test_links_and_images_absolute(products):

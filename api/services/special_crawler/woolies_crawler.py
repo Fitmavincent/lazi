@@ -6,11 +6,24 @@ import random
 from datetime import datetime, timezone
 from scrapling.fetchers import AsyncStealthySession
 from core.settings import get_settings
+from services.special_crawler.discounts import classify_discount
 
 WOOLIES_BASE_URL = "https://www.woolworths.com.au"
-WOOLIES_SPECIAL_URL = f"{WOOLIES_BASE_URL}/shop/browse/specials/half-price"
+WOOLIES_SPECIAL_BASE = f"{WOOLIES_BASE_URL}/shop/browse/specials"
 
-# The half-price specials page renders products into shadow-DOM web components
+# Woolworths splits grocery specials into categories. Only these two expose a
+# genuine was>now delta on grocery items:
+#   - half-price          : ~1700 items, all 50% off
+#   - online-only-specials: grocery online deals at varied % (the non-half
+#                           discounts the half-price feed misses)
+# The other categories are everyday-low / seasonal / multibuy programs with
+# WasPrice == Price (nothing quantifiable), and "everyday-market-specials-and-
+# offers" is the MarketPlace (third-party, non-grocery) feed — both excluded.
+# online-only is crawled first (it's small) so its non-half discounts are
+# always represented before the wall-time budget is spent on half-price.
+WOOLIES_CATEGORIES = ["online-only-specials", "half-price"]
+
+# The specials page renders products into shadow-DOM web components
 # (<wc-product-tile>), so the HTML can't be scraped directly. Instead we run a
 # stealth browser session (same engine as the Coles V2.5 crawler) and capture
 # the category API JSON it fetches — clean, structured product data.
@@ -72,25 +85,29 @@ class ProductExtractor:
         products = []
         for bundle in data.get("Bundles", []):
             for p in bundle.get("Products", []):
-                if not p.get("IsHalfPrice"):
-                    continue
                 name = p.get("DisplayName", "")
                 if not name:
                     continue
-                price = p.get("Price") or 0.0
-                was_price = p.get("WasPrice") or 0.0
+                price = float(p.get("Price") or 0.0)
+                was_price = float(p.get("WasPrice") or 0.0)
+                # Only keep products with a genuine was>now discount. The feed
+                # also carries everyday-low items where WasPrice == Price.
+                if not (was_price > price > 0):
+                    continue
+                is_half = bool(p.get("IsHalfPrice"))
                 stockcode = p.get("Stockcode")
                 products.append({
                     "name": name,
-                    "price": float(price),
+                    "price": price,
                     "price_per_unit": p.get("CupString", "") or "",
-                    "price_was": float(was_price),
+                    "price_was": was_price,
                     "product_link": f"{WOOLIES_BASE_URL}/shop/productdetails/{stockcode}" if stockcode else "",
                     "image": p.get("LargeImageFile", "") or "",
                     "discount": self._discount(price, was_price),
+                    "discount_type": classify_discount(price, was_price, is_half_price=is_half),
                     "retailer": "Woolworths",
                 })
-        logger.info(f"Extracted {len(products)} half-price products from page")
+        logger.info(f"Extracted {len(products)} discounted products from page")
         return products
 
     def _discount(self, price: float, was_price: float) -> str:
@@ -185,37 +202,39 @@ class WooliesCrawler:
                 return data
         return None
 
-    async def _crawl_single_page(self, session, page_num: int) -> tuple[list[dict], bool]:
-        url = WOOLIES_SPECIAL_URL if page_num == 1 else f"{WOOLIES_SPECIAL_URL}?pageNumber={page_num}"
+    async def _crawl_single_page(self, session, category: str, page_num: int) -> tuple[list[dict], bool]:
+        url = f"{WOOLIES_SPECIAL_BASE}/{category}"
+        if page_num > 1:
+            url = f"{url}?pageNumber={page_num}"
         response = await self._fetch(session, url)
         if not response:
             return [], False
 
         if is_blocked(response.html_content):
-            logger.warning(f"Page {page_num}: blocked by anti-bot protection")
+            logger.warning(f"[{category}] page {page_num}: blocked by anti-bot protection")
             return [], True
 
         data = self._category_json(response)
         if data is None:
-            logger.warning(f"Page {page_num}: no category API payload captured")
+            logger.warning(f"[{category}] page {page_num}: no category API payload captured")
             return [], False
 
         products = self.extractor.extract_all(data)
         return products, False
 
-    async def _crawl_page_with_retry(self, session, page_num: int) -> list[dict]:
+    async def _crawl_page_with_retry(self, session, category: str, page_num: int) -> list[dict]:
         for attempt in range(MAX_PAGE_RETRIES + 1):
-            products, blocked = await self._crawl_single_page(session, page_num)
+            products, blocked = await self._crawl_single_page(session, category, page_num)
             if products:
                 return products
             if blocked:
                 if attempt < MAX_PAGE_RETRIES:
                     wait = BLOCK_BACKOFF[attempt]
-                    logger.warning(f"Page {page_num} blocked. Waiting {wait}s before retry {attempt + 1}.")
+                    logger.warning(f"[{category}] page {page_num} blocked. Waiting {wait}s before retry {attempt + 1}.")
                     await asyncio.sleep(wait)
             else:
                 if attempt < MAX_PAGE_RETRIES:
-                    logger.warning(f"Page {page_num} empty (non-block). Retrying in 10s.")
+                    logger.warning(f"[{category}] page {page_num} empty (non-block). Retrying in 10s.")
                     await asyncio.sleep(10)
         return []
 
@@ -224,59 +243,68 @@ class WooliesCrawler:
     # ------------------------------------------------------------------
 
     async def crawl_pipeline(self) -> dict:
-        logger.info(f"Starting Woolies crawl pipeline (up to {self.max_pages} pages, single session)")
+        logger.info(
+            f"Starting Woolies crawl pipeline (categories={WOOLIES_CATEGORIES}, "
+            f"up to {self.max_pages} pages each, single session)"
+        )
 
         all_products: list[dict] = []
         seen_keys: set[str] = set()
         pages_succeeded = 0
         pages_blocked = 0
         pages_attempted = 0
-        consecutive_failures = 0
         loop = asyncio.get_event_loop()
         deadline = loop.time() + MAX_CRAWL_SECONDS
 
         async with self._new_session() as session:
             await self._warmup(session)
 
-            for page_num in range(1, self.max_pages + 1):
+            for category in WOOLIES_CATEGORIES:
                 if loop.time() >= deadline:
-                    logger.warning(
-                        f"Crawl wall-time budget ({MAX_CRAWL_SECONDS}s) exceeded — "
-                        f"stopping at page {page_num - 1} with {len(all_products)} products"
-                    )
+                    logger.warning(f"Wall-time budget reached before category {category!r} — skipping")
                     break
-                pages_attempted = page_num
-                logger.info(f"Page {page_num}/{self.max_pages}")
-                products = await self._crawl_page_with_retry(session, page_num)
+                logger.info(f"=== Category: {category} ===")
+                consecutive_failures = 0
 
-                if products:
-                    new_products = []
-                    for p in products:
-                        key = p.get('product_link') or p.get('name')
-                        if key not in seen_keys:
-                            seen_keys.add(key)
-                            new_products.append(p)
-
-                    if not new_products:
-                        # Woolies re-serves earlier products past the last page;
-                        # a page with zero NEW products means pagination ended.
-                        logger.info(f"Page {page_num}: no new products — end of pagination")
+                for page_num in range(1, self.max_pages + 1):
+                    if loop.time() >= deadline:
+                        logger.warning(
+                            f"Crawl wall-time budget ({MAX_CRAWL_SECONDS}s) exceeded in {category!r} "
+                            f"at page {page_num - 1} with {len(all_products)} products total"
+                        )
                         break
+                    pages_attempted += 1
+                    logger.info(f"[{category}] page {page_num}/{self.max_pages}")
+                    products = await self._crawl_page_with_retry(session, category, page_num)
 
-                    all_products.extend(new_products)
-                    pages_succeeded += 1
-                    consecutive_failures = 0
-                    logger.info(f"Page {page_num}: {len(new_products)} new products. Total: {len(all_products)}")
-                else:
-                    pages_blocked += 1
-                    consecutive_failures += 1
-                    logger.warning(f"Page {page_num}: 0 products after all retries")
-                    if consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
-                        logger.error(f"{consecutive_failures} consecutive failed pages — aborting crawl early")
-                        break
+                    if products:
+                        new_products = []
+                        for p in products:
+                            key = p.get('product_link') or p.get('name')
+                            if key not in seen_keys:
+                                seen_keys.add(key)
+                                new_products.append(p)
 
-                if page_num < self.max_pages:
-                    await human_delay(3, 7)
+                        if not new_products:
+                            # Woolies re-serves earlier products past the last page;
+                            # a page with zero NEW products means this category ended.
+                            logger.info(f"[{category}] page {page_num}: no new products — end of category")
+                            break
+
+                        all_products.extend(new_products)
+                        pages_succeeded += 1
+                        consecutive_failures = 0
+                        logger.info(f"[{category}] page {page_num}: {len(new_products)} new. Total: {len(all_products)}")
+                    else:
+                        pages_blocked += 1
+                        consecutive_failures += 1
+                        logger.warning(f"[{category}] page {page_num}: 0 products after all retries")
+                        if consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
+                            logger.error(f"[{category}] {consecutive_failures} consecutive failed pages — next category")
+                            break
+
+                    if page_num < self.max_pages:
+                        await human_delay(3, 7)
 
         n = len(all_products)
         if n >= MIN_PRODUCTS_SUCCESS:
@@ -293,7 +321,7 @@ class WooliesCrawler:
             "pages_attempted": pages_attempted,
             "pages_succeeded": pages_succeeded,
             "pages_blocked": pages_blocked,
-            "crawler_version": "woolies-v2",
+            "crawler_version": "woolies-v3-alldiscounts",
             "count": n,
             "data": all_products,
         }

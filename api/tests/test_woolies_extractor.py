@@ -22,8 +22,8 @@ def test_extracts_products(products):
     assert len(products) >= 20
 
 
-def test_only_half_price_items(products):
-    # Extractor filters IsHalfPrice; every item should be a genuine discount
+def test_all_items_are_genuine_discounts(products):
+    # Extractor keeps only was>now items; every one is a real discount
     for p in products:
         assert p["price_was"] > p["price"] > 0
 
@@ -34,14 +34,19 @@ def test_all_have_names_and_prices(products):
     assert all(p["price_was"] > 0 for p in products)
 
 
-def test_frozen_product_shape(products):
+def test_frozen_product_shape_plus_discount_type(products):
     expected = {
         "name", "price", "price_per_unit", "price_was",
-        "product_link", "image", "discount", "retailer",
+        "product_link", "image", "discount", "retailer", "discount_type",
     }
     for p in products:
         assert set(p.keys()) == expected
         assert p["retailer"] == "Woolworths"
+
+
+def test_discount_type_present(products):
+    for p in products:
+        assert p["discount_type"] in {"half_price", "beyond_half", "discount"}
 
 
 def test_product_links_built_from_stockcode(products):

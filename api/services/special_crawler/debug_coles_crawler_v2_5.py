@@ -52,6 +52,7 @@ def validate_data_structure(data: dict) -> bool:
         "name", "price", "price_per_unit", "price_was",
         "product_link", "image", "discount", "retailer",
     }
+    OPTIONAL_PRODUCT = {"discount_type"}
 
     errors = []
 
@@ -70,7 +71,7 @@ def validate_data_structure(data: dict) -> bool:
             missing = REQUIRED_PRODUCT - item.keys()
             if missing:
                 errors.append(f"Item {i} missing fields: {missing}")
-            extra = set(item.keys()) - REQUIRED_PRODUCT
+            extra = set(item.keys()) - REQUIRED_PRODUCT - OPTIONAL_PRODUCT
             if extra:
                 errors.append(f"Item {i} has unexpected fields: {extra}")
             if errors and i > 10:
