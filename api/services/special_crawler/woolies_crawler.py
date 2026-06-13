@@ -99,7 +99,7 @@ class ProductExtractor:
 class WooliesCrawler:
     def __init__(self):
         logger.info("Initializing WooliesCrawler (scrapling 0.4 / stealth XHR capture)")
-        self.max_pages = 30
+        self.max_pages = 20
         self.headless = True
         self.extractor = ProductExtractor()
 
@@ -134,7 +134,10 @@ class WooliesCrawler:
             google_search=True,
             timeout=60000,
             wait=2500,
-            network_idle=True,
+            # NB: no network_idle — Woolies loads ad/analytics traffic that
+            # rarely goes idle, so network_idle made each page wait near the
+            # full 60s timeout. wait_selector on the product tile already
+            # guarantees the category XHR has fired and been captured.
             capture_xhr=WOOLIES_XHR_PATTERN,
             retries=1,
         )

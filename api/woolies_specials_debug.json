@@ -1,0 +1,1151 @@
+{
+  "synced_at": "2026-06-13T02:31:57.564730+00:00",
+  "crawl_status": "partial",
+  "pages_attempted": 3,
+  "pages_succeeded": 3,
+  "pages_blocked": 0,
+  "crawler_version": "woolies-v2",
+  "count": 114,
+  "data": [
+    {
+      "name": "Amazing Oils Epsom Salts Detox Bath Soak 1kg",
+      "price": 6.0,
+      "price_per_unit": "$0.60 / 100G",
+      "price_was": 12.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/246634",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/246634.jpg",
+      "discount": "Save $6.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Favourites Chocolate Gift Box 265g",
+      "price": 7.0,
+      "price_per_unit": "$2.64 / 100G",
+      "price_was": 14.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6031031",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6031031.jpg",
+      "discount": "Save $7.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Botanica Origins Madagascan Vanilla Reed Diffuser 85mL",
+      "price": 13.0,
+      "price_per_unit": "$1.53 / 10ML",
+      "price_was": 26.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6026667",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6026667.jpg",
+      "discount": "Save $13.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Air Wick Pure Freshmatic Auto Freshener Cherry Blossom 157g",
+      "price": 11.0,
+      "price_per_unit": "$7.01 / 100G",
+      "price_was": 22.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/676392",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/676392.jpg",
+      "discount": "Save $11.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Kellogg's Nutri Grain Protein Breakfast Cereal 290g",
+      "price": 3.5,
+      "price_per_unit": "$1.21 / 100G",
+      "price_was": 7.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/701706",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/701706.jpg",
+      "discount": "Save $3.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Table Of Plenty Mini Rice Cakes Milk Chocolate Snack Packs 6 pack",
+      "price": 3.5,
+      "price_per_unit": "$4.17 / 100G",
+      "price_was": 7.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/913540",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/913540.jpg",
+      "discount": "Save $3.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Morning Fresh Dishwashing Liquid Lemon 900mL",
+      "price": 5.0,
+      "price_per_unit": "$0.56 / 100ML",
+      "price_was": 10.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/208111",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/208111.jpg",
+      "discount": "Save $5.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Birds Eye Oven Bake Fish Original Crumb 425g",
+      "price": 6.0,
+      "price_per_unit": "$14.12 / 1KG",
+      "price_was": 12.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/45916",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/045916.jpg",
+      "discount": "Save $6.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Dairy Milk Chocolate Block 180g",
+      "price": 4.0,
+      "price_per_unit": "$2.22 / 100G",
+      "price_was": 8.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/814479",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/814479.jpg",
+      "discount": "Save $4.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Nivea Rich Lather Coconut & Jojoba Oil Body Wash & Shower Gel 1L",
+      "price": 8.5,
+      "price_per_unit": "$0.85 / 100ML",
+      "price_was": 17.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/694039",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/694039.jpg",
+      "discount": "Save $8.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Fairy Ultra Platinum Plus Dishwasher Tablets Lemon 52 pack",
+      "price": 28.0,
+      "price_per_unit": "$0.54 / 1EA",
+      "price_was": 56.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6063684",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6063684.jpg",
+      "discount": "Save $28.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Fairy Platinum Dishwashing Tablets 52 pack",
+      "price": 23.0,
+      "price_per_unit": "$0.44 / 1EA",
+      "price_was": 46.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/154829",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/154829.jpg",
+      "discount": "Save $23.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Fairy Platinum Dishwasher Tablets Lemon Scent 80 pack",
+      "price": 30.0,
+      "price_per_unit": "$0.38 / 1EA",
+      "price_was": 60.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6022467",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6022467.jpg",
+      "discount": "Save $30.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Toblerone Milk Chocolate Bar 340g",
+      "price": 10.0,
+      "price_per_unit": "$2.94 / 100G",
+      "price_was": 20.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6033828",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6033828.jpg",
+      "discount": "Save $10.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Coca-Cola Classic  Soft Drink Bottle 1.25L",
+      "price": 2.1,
+      "price_per_unit": "$1.68 / 1L",
+      "price_was": 4.2,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/32731",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/032731.jpg",
+      "discount": "Save $2.10",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Coca-Cola Zero Sugar Soft Drink Bottle 1.25L",
+      "price": 2.1,
+      "price_per_unit": "$1.68 / 1L",
+      "price_was": 4.2,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/623034",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/623034.jpg",
+      "discount": "Save $2.10",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Golden Crumpets Round 6 pack",
+      "price": 2.4,
+      "price_per_unit": "$0.40 / 1EA",
+      "price_was": 4.8,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/49622",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/049622.jpg",
+      "discount": "Save $2.40",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "D'Orsogna Chorizo From The Deli per 130g",
+      "price": 13.0,
+      "price_per_unit": "$13.00 / 1KG",
+      "price_was": 26.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/199215",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/199215.jpg",
+      "discount": "Save $13.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Smith's Crinkle Cut Potato Chips Salt & Vinegar 170g",
+      "price": 2.0,
+      "price_per_unit": "$1.18 / 100G",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/826738",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/826738.jpg",
+      "discount": "Save $3.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Smith's Crinkle Cut Potato Chips Original 170g",
+      "price": 2.0,
+      "price_per_unit": "$1.18 / 100G",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/826730",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/826730.jpg",
+      "discount": "Save $3.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Pascall Marshmallows Pink & White 280g",
+      "price": 2.5,
+      "price_per_unit": "$0.89 / 100G",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/828996",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/828996.jpg",
+      "discount": "Save $2.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Woolworths Chicken Garlic Kyiv From The Deli each",
+      "price": 1.5,
+      "price_per_unit": "$1.50 / 1EA",
+      "price_was": 3.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/769243",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/769243.jpg",
+      "discount": "Save $1.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Vaalia Boost Probiotic Yoghurt Pouch Mango Magic 150g",
+      "price": 1.42,
+      "price_per_unit": "$0.95 / 100G",
+      "price_was": 2.85,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6039040",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6039040.jpg",
+      "discount": "Save $1.43",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Mars Chocolate Bar with Nougat & Caramel 47g",
+      "price": 1.5,
+      "price_per_unit": "$3.19 / 100G",
+      "price_was": 3.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/160905",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/160905.jpg",
+      "discount": "Save $1.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cobs Popcorn Sea Salt 80g",
+      "price": 1.75,
+      "price_per_unit": "$2.19 / 100G",
+      "price_was": 3.5,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/377589",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/377589.jpg",
+      "discount": "Save $1.75",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Huggies Thick Baby Wipes Fragrance Free 80 pack",
+      "price": 2.75,
+      "price_per_unit": "$3.44 / 100EA",
+      "price_was": 5.5,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/20391",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/020391.jpg",
+      "discount": "Save $2.75",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Maltesers Chocolate Bar 35g",
+      "price": 1.5,
+      "price_per_unit": "$4.29 / 100G",
+      "price_was": 3.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6079620",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6079620.jpg",
+      "discount": "Save $1.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Smith's Crinkle Cut Potato Chips Cheese & Onion 170g",
+      "price": 2.0,
+      "price_per_unit": "$1.18 / 100G",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/826735",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/826735.jpg",
+      "discount": "Save $3.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Coca-Cola Zero Sugar Soft Drink Cans 375mL x 10 pack",
+      "price": 10.5,
+      "price_per_unit": "$2.80 / 1L",
+      "price_was": 21.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/669379",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/669379.jpg",
+      "discount": "Save $10.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "The Natural Confectionery Co. Snakes Lollies 230g",
+      "price": 2.5,
+      "price_per_unit": "$1.09 / 100G",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/211973",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/211973.jpg",
+      "discount": "Save $2.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "The Natural Confectionery Co. Party Mix Lollies 220g",
+      "price": 2.5,
+      "price_per_unit": "$1.14 / 100G",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/211982",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/211982.jpg",
+      "discount": "Save $2.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cobs Natural Popcorn Lightly Salted Slightly Sweet 120g",
+      "price": 1.75,
+      "price_per_unit": "$1.46 / 100G",
+      "price_was": 3.5,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/377593",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/377593.jpg",
+      "discount": "Save $1.75",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Smith's Crinkle Cut Potato Chips Chicken 170g",
+      "price": 2.0,
+      "price_per_unit": "$1.18 / 100G",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/826729",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/826729.jpg",
+      "discount": "Save $3.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Smith's Crinkle Cut Potato Chips Barbecue 170g",
+      "price": 2.0,
+      "price_per_unit": "$1.18 / 100G",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/826733",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/826733.jpg",
+      "discount": "Save $3.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Kinder Bueno Milk Chocolate Bar 43g",
+      "price": 1.5,
+      "price_per_unit": "$3.49 / 100G",
+      "price_was": 3.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/66527",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/066527.jpg",
+      "discount": "Save $1.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Red Bull Energy Drink 250mL x 4 pack",
+      "price": 6.5,
+      "price_per_unit": "$6.50 / 1L",
+      "price_was": 13.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/162609",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/162609.jpg",
+      "discount": "Save $6.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "KitKat Chocolate Bar 42g",
+      "price": 1.5,
+      "price_per_unit": "$3.57 / 100G",
+      "price_was": 3.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6115",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/006115.jpg",
+      "discount": "Save $1.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Coca-Cola Classic Soft Drink Cans 375mL x 10 pack",
+      "price": 10.5,
+      "price_per_unit": "$2.80 / 1L",
+      "price_was": 21.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/793315",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/793315.jpg",
+      "discount": "Save $10.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Sprite Lemonade Soft Drink Bottle 1.25L",
+      "price": 2.1,
+      "price_per_unit": "$1.68 / 1L",
+      "price_was": 4.2,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/95325",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/095325.jpg",
+      "discount": "Save $2.10",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "The Natural Confectionery Co. Fruity Chews Lollies 180g",
+      "price": 2.5,
+      "price_per_unit": "$1.39 / 100G",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/250746",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/250746.jpg",
+      "discount": "Save $2.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Coca-Cola Caffeine Free Zero Sugar Soft Drink Bottle 1.25L",
+      "price": 2.1,
+      "price_per_unit": "$1.68 / 1L",
+      "price_was": 4.2,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/137848",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/137848.jpg",
+      "discount": "Save $2.10",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cobs Natural Popcorn Best Ever Butter 90g",
+      "price": 1.75,
+      "price_per_unit": "$1.94 / 100G",
+      "price_was": 3.5,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/172188",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/172188.jpg",
+      "discount": "Save $1.75",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Continental Classics Cup A Soup Creamy Chicken With Lots Of Noodles 60g",
+      "price": 1.4,
+      "price_per_unit": "$2.33 / 100G",
+      "price_was": 2.8,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/26649",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/026649.jpg",
+      "discount": "Save $1.40",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Kinder Chocolate Little Ones 50g x 4 pack",
+      "price": 1.4,
+      "price_per_unit": "$2.80 / 100G",
+      "price_was": 2.8,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/21197",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/021197.jpg",
+      "discount": "Save $1.40",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Snickers Chocolate Bar Peanuts Caramel Nougat 44g",
+      "price": 1.5,
+      "price_per_unit": "$3.41 / 100G",
+      "price_was": 3.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/206890",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/206890.jpg",
+      "discount": "Save $1.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Coca-Cola Diet Soft Drink Bottle 1.25L",
+      "price": 2.1,
+      "price_per_unit": "$1.68 / 1L",
+      "price_was": 4.2,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/94493",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/094493.jpg",
+      "discount": "Save $2.10",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Curly Wurly Milk Chocolate Bar 21.5g",
+      "price": 1.0,
+      "price_per_unit": "$4.65 / 100G",
+      "price_was": 2.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/109586",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/109586.jpg",
+      "discount": "Save $1.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Vaalia Boost Probiotic Yoghurt Pouch Banana Buzz 150g",
+      "price": 1.42,
+      "price_per_unit": "$0.95 / 100G",
+      "price_was": 2.85,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6038609",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6038609.jpg",
+      "discount": "Save $1.43",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Kellogg's Sultana Bran High Fibre Breakfast Cereal 420g",
+      "price": 3.5,
+      "price_per_unit": "$0.83 / 100G",
+      "price_was": 7.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/701732",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/701732.jpg",
+      "discount": "Save $3.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Dairy Milk Freddo Chocolate 35g",
+      "price": 1.0,
+      "price_per_unit": "$2.86 / 100G",
+      "price_was": 2.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/326628",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/326628.jpg",
+      "discount": "Save $1.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Tamar Valley Dairy Yoghurt Strawberry & Cream 170g",
+      "price": 1.5,
+      "price_per_unit": "$0.88 / 100G",
+      "price_was": 3.05,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/167552",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/167552.jpg",
+      "discount": "Save $1.55",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "The Natural Confectionery Co. Sour Squirms Lollies 220g",
+      "price": 2.5,
+      "price_per_unit": "$1.14 / 100G",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/210630",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/210630.jpg",
+      "discount": "Save $2.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Chomp Caramel Milk Chocolate Bar 30g",
+      "price": 1.0,
+      "price_per_unit": "$3.33 / 100G",
+      "price_was": 2.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/98361",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/098361.jpg",
+      "discount": "Save $1.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Dairy Milk Marvellous Creation Jelly Popping Chocolate Block 190g",
+      "price": 4.0,
+      "price_per_unit": "$2.11 / 100G",
+      "price_was": 8.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/814894",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/814894.jpg",
+      "discount": "Save $4.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Nuttelex Unsweetened Almond Long Life Milk UHT 1L",
+      "price": 1.65,
+      "price_per_unit": "$1.65 / 1L",
+      "price_was": 3.3,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6024687",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6024687.jpg",
+      "discount": "Save $1.65",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Twix Milk Chocolate Bar with Caramel Biscuit 50g",
+      "price": 1.5,
+      "price_per_unit": "$3.00 / 100G",
+      "price_was": 3.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/657419",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/657419.jpg",
+      "discount": "Save $1.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Pascall Eclairs Chocolate Lollies 160g",
+      "price": 2.5,
+      "price_per_unit": "$1.56 / 100G",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/697802",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/697802.jpg",
+      "discount": "Save $2.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Golden Crumpets Round Wholemeal 6 pack",
+      "price": 2.4,
+      "price_per_unit": "$0.40 / 1EA",
+      "price_was": 4.8,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/31560",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/031560.jpg",
+      "discount": "Save $2.40",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Coca-Cola Vanilla  Soft Drink Bottle 1.25L",
+      "price": 2.1,
+      "price_per_unit": "$1.68 / 1L",
+      "price_was": 4.2,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/180941",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/180941.jpg",
+      "discount": "Save $2.10",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Allen's Big Red Frogs Lollies 64g",
+      "price": 1.5,
+      "price_per_unit": "$2.34 / 100G",
+      "price_was": 3.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/816113",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/816113.jpg",
+      "discount": "Save $1.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Finish Dishwasher Deep Cleaner Lemon 250mL",
+      "price": 6.0,
+      "price_per_unit": "$2.40 / 100ML",
+      "price_was": 12.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6065378",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6065378.jpg",
+      "discount": "Save $6.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Nuttelex Oat Long Life Milk UHT 1L",
+      "price": 1.65,
+      "price_per_unit": "$1.65 / 1L",
+      "price_was": 3.3,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6024108",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6024108.jpg",
+      "discount": "Save $1.65",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Dairy Milk Caramel Chocolate Caramello Koala 35g",
+      "price": 1.0,
+      "price_per_unit": "$2.86 / 100G",
+      "price_was": 2.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/840556",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/840556.jpg",
+      "discount": "Save $1.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Red Bull Energy Drink Sugar Free 250mL x 4 pack",
+      "price": 6.5,
+      "price_per_unit": "$6.50 / 1L",
+      "price_was": 13.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/226913",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/226913.jpg",
+      "discount": "Save $6.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Dairy Milk Top Deck Chocolate Block 180g",
+      "price": 4.0,
+      "price_per_unit": "$2.22 / 100G",
+      "price_was": 8.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/814624",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/814624.jpg",
+      "discount": "Save $4.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Dairy Milk Hazelnut Chocolate Block 180g",
+      "price": 4.0,
+      "price_per_unit": "$2.22 / 100G",
+      "price_was": 8.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/814558",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/814558.jpg",
+      "discount": "Save $4.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Tamar Valley Dairy Yoghurt Mango & Cream 170g",
+      "price": 1.5,
+      "price_per_unit": "$0.88 / 100G",
+      "price_was": 3.05,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/167374",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/167374.jpg",
+      "discount": "Save $1.55",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Sour Patch Kids Lollies 190g",
+      "price": 2.5,
+      "price_per_unit": "$1.32 / 100G",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/234699",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/234699.jpg",
+      "discount": "Save $2.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "The Natural Confectionery Co. Rainbow Snakes Lollies 220g",
+      "price": 2.5,
+      "price_per_unit": "$1.14 / 100G",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/166974",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/166974.jpg",
+      "discount": "Save $2.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Kellogg's Coco Pops Chocolatey Breakfast Cereal 320g",
+      "price": 3.5,
+      "price_per_unit": "$1.09 / 100G",
+      "price_was": 7.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6055360",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6055360.jpg",
+      "discount": "Save $3.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Aero Peppermint Milk Chocolate Bar 40g",
+      "price": 1.5,
+      "price_per_unit": "$3.75 / 100G",
+      "price_was": 3.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/330355",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/330355.jpg",
+      "discount": "Save $1.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "The Natural Confectionery Co. Fruit Salad Soft Jellies Lollies 220g",
+      "price": 2.5,
+      "price_per_unit": "$1.14 / 100G",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/210601",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/210601.jpg",
+      "discount": "Save $2.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Huggies Thick Baby Wipes 99% Purified Water 72 pack",
+      "price": 2.75,
+      "price_per_unit": "$3.82 / 100EA",
+      "price_was": 5.5,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/216801",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/216801.jpg",
+      "discount": "Save $2.75",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Continental Classics Cup A Soup Chicken With Lots Of Noodles 60g",
+      "price": 1.4,
+      "price_per_unit": "$2.33 / 100G",
+      "price_was": 2.8,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/32924",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/032924.jpg",
+      "discount": "Save $1.40",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Sprite Zero Sugar Lemonade Soft Drink Bottle 1.25L",
+      "price": 2.1,
+      "price_per_unit": "$1.68 / 1L",
+      "price_was": 4.2,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/62170",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/062170.jpg",
+      "discount": "Save $2.10",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Bounty Chocolate Bar 50g",
+      "price": 1.5,
+      "price_per_unit": "$3.00 / 100G",
+      "price_was": 3.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6055209",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6055209.jpg",
+      "discount": "Save $1.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Tamar Valley The Creamery Greek Style Yoghurt Blueberries & Cream 170g",
+      "price": 1.5,
+      "price_per_unit": "$0.88 / 100G",
+      "price_was": 3.05,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/167330",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/167330.jpg",
+      "discount": "Save $1.55",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Nutella Hazelnut Chocolate Spread With Breadsticks 48g",
+      "price": 1.4,
+      "price_per_unit": "$2.92 / 100G",
+      "price_was": 2.8,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/869235",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/869235.jpg",
+      "discount": "Save $1.40",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "KitKat Chunky Bar 48g",
+      "price": 1.5,
+      "price_per_unit": "$3.13 / 100G",
+      "price_was": 3.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/18862",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/018862.jpg",
+      "discount": "Save $1.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Fanta Orange Soft Drink Bottle 1.25L",
+      "price": 2.1,
+      "price_per_unit": "$1.68 / 1L",
+      "price_was": 4.2,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/32812",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/032812.jpg",
+      "discount": "Save $2.10",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Finish Rinse & Shine Dishwashing Aid 250mL",
+      "price": 4.5,
+      "price_per_unit": "$1.80 / 100ML",
+      "price_was": 9.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/34222",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/034222.jpg",
+      "discount": "Save $4.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Table Of Plenty Mini Rice Cakes Milk Chocolate With 100s & 1000s 6 pack",
+      "price": 3.5,
+      "price_per_unit": "$3.43 / 100G",
+      "price_was": 7.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6047509",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6047509.jpg",
+      "discount": "Save $3.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Domestos Disinfectant Bleach Regular 1.25L",
+      "price": 3.3,
+      "price_per_unit": "$0.26 / 100ML",
+      "price_was": 6.6,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/94095",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/094095.jpg",
+      "discount": "Save $3.30",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Nescafe Cappuccino Coffee Sachets 10 pack",
+      "price": 4.0,
+      "price_per_unit": "$0.40 / 1EA",
+      "price_was": 8.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/195108",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/195108.jpg",
+      "discount": "Save $4.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Continental Classics Cup A Soup Creamy Chicken With Croutons 60g",
+      "price": 1.4,
+      "price_per_unit": "$2.33 / 100G",
+      "price_was": 2.8,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/166232",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/166232.jpg",
+      "discount": "Save $1.40",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Findus Crumbed Fish Fingers 10 pack",
+      "price": 2.75,
+      "price_per_unit": "$9.82 / 1KG",
+      "price_was": 5.5,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/310432",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/310432.jpg",
+      "discount": "Save $2.75",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Nestle Smarties Milk Choc Box 50g",
+      "price": 1.5,
+      "price_per_unit": "$3.00 / 100G",
+      "price_was": 3.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/98471",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/098471.jpg",
+      "discount": "Save $1.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Continental Classics Cup A Soup Laksa With Noodles 65g",
+      "price": 1.4,
+      "price_per_unit": "$2.15 / 100G",
+      "price_was": 2.8,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/142839",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/142839.jpg",
+      "discount": "Save $1.40",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Sprite Zero Sugar Lemonade Soft Drink  Cans 375mL x 10 pack",
+      "price": 10.5,
+      "price_per_unit": "$2.80 / 1L",
+      "price_was": 21.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/793280",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/793280.jpg",
+      "discount": "Save $10.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Kellogg's Just Right Apricot & Sultana Breakfast Cereal 460g",
+      "price": 3.5,
+      "price_per_unit": "$0.76 / 100G",
+      "price_was": 7.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/701638",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/701638.jpg",
+      "discount": "Save $3.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Dairy Milk Snack Chocolate Block 180g",
+      "price": 4.0,
+      "price_per_unit": "$2.22 / 100G",
+      "price_was": 8.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/814626",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/814626.jpg",
+      "discount": "Save $4.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Harpic Fresh Power Marine Splash Toilet Cleaner 700mL",
+      "price": 3.5,
+      "price_per_unit": "$0.50 / 100ML",
+      "price_was": 7.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/622215",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/622215.jpg",
+      "discount": "Save $3.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Favourites Chocolate Gift Box 700g",
+      "price": 15.0,
+      "price_per_unit": "$2.14 / 100G",
+      "price_was": 30.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6031592",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6031592.jpg",
+      "discount": "Save $15.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Nescafe Caramel Latte Coffee Sachets 10 pack",
+      "price": 4.0,
+      "price_per_unit": "$0.40 / 1EA",
+      "price_was": 8.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/226908",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/226908.jpg",
+      "discount": "Save $4.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Peters Drumstick Minis Ice Cream Vanilla 6 pack",
+      "price": 4.95,
+      "price_per_unit": "$1.01 / 100ML",
+      "price_was": 9.9,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/259674",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/259674.jpg",
+      "discount": "Save $4.95",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Nuttelex Barista Oat Long Life Milk UHT 1L",
+      "price": 2.5,
+      "price_per_unit": "$2.50 / 1L",
+      "price_was": 5.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6023712",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6023712.jpg",
+      "discount": "Save $2.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Domestos Disinfectant Bleach Mountain Fresh 1.25L",
+      "price": 3.3,
+      "price_per_unit": "$0.26 / 100ML",
+      "price_was": 6.6,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/94094",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/094094.jpg",
+      "discount": "Save $3.30",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Continental Classics Cup A Soup Creamy Chicken & Corn With Croutons 60g",
+      "price": 1.4,
+      "price_per_unit": "$2.33 / 100G",
+      "price_was": 2.8,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/166227",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/166227.jpg",
+      "discount": "Save $1.40",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Dairy Milk Fruit & Nut Chocolate Block 180g",
+      "price": 4.0,
+      "price_per_unit": "$2.22 / 100G",
+      "price_was": 8.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/814559",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/814559.jpg",
+      "discount": "Save $4.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "McCain Rustica Thin & Crispy Australian Angus Beef Pizza 370g",
+      "price": 5.5,
+      "price_per_unit": "$1.49 / 100G",
+      "price_was": 11.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/315505",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/315505.jpg",
+      "discount": "Save $5.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Nescafe Cappuccino Strong Coffee Sachets 10 pack",
+      "price": 4.0,
+      "price_per_unit": "$0.40 / 1EA",
+      "price_was": 8.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/259079",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/259079.jpg",
+      "discount": "Save $4.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Kinder Bueno White 39g",
+      "price": 1.5,
+      "price_per_unit": "$3.85 / 100G",
+      "price_was": 3.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/532344",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/532344.jpg",
+      "discount": "Save $1.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Nuttelex Oat Pure Long Life Milk UHT 1L",
+      "price": 1.65,
+      "price_per_unit": "$1.65 / 1L",
+      "price_was": 3.3,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6024541",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6024541.jpg",
+      "discount": "Save $1.65",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Dairy Milk Black Forest Chocolate Block 180g",
+      "price": 4.0,
+      "price_per_unit": "$2.22 / 100G",
+      "price_was": 8.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/814620",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/814620.jpg",
+      "discount": "Save $4.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Table Of Plenty Mini Rice Cakes Dark Chocolate Snack Packs 6 pack",
+      "price": 3.5,
+      "price_per_unit": "$4.17 / 100G",
+      "price_was": 7.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/913593",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/913593.jpg",
+      "discount": "Save $3.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Huggies Thick Baby Wipes Coconut Oil 80 pack",
+      "price": 2.75,
+      "price_per_unit": "$3.44 / 100EA",
+      "price_was": 5.5,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/500427",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/500427.jpg",
+      "discount": "Save $2.75",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Morning Fresh Dishwashing Liquid Raspberry & Crisp Apple 900mL",
+      "price": 5.0,
+      "price_per_unit": "$0.56 / 100ML",
+      "price_was": 10.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/588994",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/588994.jpg",
+      "discount": "Save $5.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Coca-Cola Caffeine Free Zero Sugar Soft Drink Cans 375mL x 10 pack",
+      "price": 10.5,
+      "price_per_unit": "$2.80 / 1L",
+      "price_was": 21.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/140640",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/140640.jpg",
+      "discount": "Save $10.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Coca-Cola Vanilla Zero Sugar Soft Drink Bottle 1.25L",
+      "price": 2.1,
+      "price_per_unit": "$1.68 / 1L",
+      "price_was": 4.2,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/803078",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/803078.jpg",
+      "discount": "Save $2.10",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Peters Drumstick Ice Cream Vanilla 4 pack",
+      "price": 4.95,
+      "price_per_unit": "$1.04 / 100ML",
+      "price_was": 9.9,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/48387",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/048387.jpg",
+      "discount": "Save $4.95",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Nuttelex Almond Long Life Milk UHT 1L",
+      "price": 1.65,
+      "price_per_unit": "$1.65 / 1L",
+      "price_was": 3.3,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6024800",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6024800.jpg",
+      "discount": "Save $1.65",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Continental Pasta & Sauce Alfredo 80g",
+      "price": 1.5,
+      "price_per_unit": "$1.88 / 100G",
+      "price_was": 3.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/6045979",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/6045979.jpg",
+      "discount": "Save $1.50",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Cadbury Dairy Milk Caramel Chocolate Caramello Block 180g",
+      "price": 4.0,
+      "price_per_unit": "$2.22 / 100G",
+      "price_was": 8.0,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/814622",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/814622.jpg",
+      "discount": "Save $4.00",
+      "retailer": "Woolworths"
+    },
+    {
+      "name": "Nong Shim Shin Cup Noodle Soup 68g",
+      "price": 1.25,
+      "price_per_unit": "$1.84 / 100G",
+      "price_was": 2.5,
+      "product_link": "https://www.woolworths.com.au/shop/productdetails/668740",
+      "image": "https://cdn0.woolworths.media/content/wowproductimages/large/668740.jpg",
+      "discount": "Save $1.25",
+      "retailer": "Woolworths"
+    }
+  ]
+}

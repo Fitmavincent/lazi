@@ -39,6 +39,13 @@ Goal: bring Woolies onto the **same** stealth foundation as Coles and emit the
    returned 0 until set on the constructor.
 2. **The captured `Response.html_content` wraps the body**, so `json.loads()`
    on it fails. Use the Response's `.json()` method (or `.body` bytes).
+3. **`network_idle=True` is harmful on Woolies.** The site streams
+   ad/analytics traffic that rarely goes idle, so `network_idle` made each
+   page wait near the full 60s timeout (a 30-page crawl ran 20+ min on Fly —
+   long enough to risk the machine sleeping mid-crawl). Dropped it:
+   `wait_selector="wc-product-tile"` already guarantees the category XHR has
+   fired and been captured. With that removed, 3 pages take ~30s locally.
+   `max_pages` set to 20 for parity with Coles (~600-700 products).
 
 ## Decision
 
