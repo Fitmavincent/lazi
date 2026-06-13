@@ -81,3 +81,25 @@ much larger half-price feed.
   `woolies-v3-alldiscounts`.
 - Regression coverage: `tests/test_discounts.py` (classifier bands) plus the
   extractor tests now assert `discount_type` and the all-discounts filter.
+
+## Coverage tuning (follow-up, 2026-06-13)
+
+First all-discounts deploy returned fewer items than the old half-price-only
+crawl (Coles 105, Woolies 140) because the 360s budget + slow per-page time on
+Fly capped the page count. Tuned for more coverage without weakening stealth,
+the frozen shape, or machine-sleep safety:
+
+- **`disable_resources=True`** on both sessions — skips fonts/images/media/
+  stylesheets (NOT xhr/fetch), so Coles tiles still render (image URLs come
+  from `srcset` attributes, still in the DOM) and the Woolies category XHR
+  still fires. Verified locally: identical extraction, fewer bytes over Fly's
+  link.
+- `wait` 3000/2500 → 1500ms; inter-page delay 3–7s → 2–4s (still randomised).
+- `MAX_CRAWL_SECONDS` 360 → 600 — observed background crawls already ran
+  15–20 min and completed on Fly, and the POST `/sync` path holds the
+  connection open the whole crawl, so 10 min is safely within the window.
+- Page caps raised so the wall-time budget is the real limiter: Coles
+  `max_pages` 20 → 50, Woolies 12 → 30 per category.
+
+Local scaling check: Coles 8 pages → 316 products, Woolies 6 pages/category →
+387 — both linear in page count with extraction intact.

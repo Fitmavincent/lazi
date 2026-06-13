@@ -54,10 +54,11 @@ BLOCK_BACKOFF = [20, 45]
 # Abort the crawl early after this many consecutive failed pages — once the
 # session is flagged, burning through the remaining pages only wastes time.
 MAX_CONSECUTIVE_FAILURES = 3
-# Hard ceiling on total crawl wall-time. The Fly machine can be stopped a few
-# minutes after the triggering request goes idle, so the crawl must finish and
-# save well within that window rather than grinding through every page.
-MAX_CRAWL_SECONDS = 360
+# Hard ceiling on total crawl wall-time. Bounded so the crawl always finishes
+# and saves rather than grinding through every page. Set to 10 min: observed
+# background crawls run this long and still complete on Fly, and the POST
+# /sync path holds the connection open for the whole crawl.
+MAX_CRAWL_SECONDS = 600
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -222,7 +223,7 @@ class ProductExtractor:
 class ColesV25Crawler:
     def __init__(self):
         logger.info("Initializing ColesV25Crawler (scrapling 0.4 / persistent session)")
-        self.max_pages = 20
+        self.max_pages = 50
         self.headless = True
         self.extractor = ProductExtractor()
 
@@ -259,7 +260,12 @@ class ColesV25Crawler:
             timezone_id="Australia/Sydney",
             google_search=True,
             timeout=60000,
-            wait=3000,
+            wait=1500,
+            # Skip fonts/images/media/stylesheets (NOT xhr/fetch) — the product
+            # data lives in the DOM (image URLs come from srcset attributes,
+            # which remain present), so this is safe and cuts page load on
+            # Fly's slower datacenter link to fit more pages in the budget.
+            disable_resources=True,
             # We run our own per-page retry/backoff loop — disable scrapling's
             # internal triple-retry so a blocked page fails fast instead of
             # stacking 3x60s timeouts per attempt.
@@ -385,7 +391,7 @@ class ColesV25Crawler:
                         break
 
                 if page_num < self.max_pages:
-                    await human_delay(3, 7)
+                    await human_delay(2, 4)
 
         n = len(all_products)
         if n >= MIN_PRODUCTS_SUCCESS:

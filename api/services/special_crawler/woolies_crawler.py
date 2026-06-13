@@ -52,7 +52,7 @@ PAGE_TIMEOUT_MS = 30000
 # Hard ceiling on total crawl wall-time. The Fly machine can be stopped a few
 # minutes after the triggering request goes idle, so the crawl must finish and
 # save well within that window rather than grinding through every page.
-MAX_CRAWL_SECONDS = 360
+MAX_CRAWL_SECONDS = 600
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -124,7 +124,7 @@ class ProductExtractor:
 class WooliesCrawler:
     def __init__(self):
         logger.info("Initializing WooliesCrawler (scrapling 0.4 / stealth XHR capture)")
-        self.max_pages = 12
+        self.max_pages = 30
         self.headless = True
         self.extractor = ProductExtractor()
 
@@ -158,11 +158,15 @@ class WooliesCrawler:
             timezone_id="Australia/Sydney",
             google_search=True,
             timeout=PAGE_TIMEOUT_MS,
-            wait=2500,
+            wait=1500,
             # NB: no network_idle — Woolies loads ad/analytics traffic that
             # rarely goes idle, so network_idle made each page wait near the
             # full timeout. wait_selector on the product tile already
             # guarantees the category XHR has fired and been captured.
+            # disable_resources skips fonts/images/media/stylesheets but NOT
+            # xhr/fetch, so the category API we capture still fires — faster
+            # pages on Fly's slower link.
+            disable_resources=True,
             capture_xhr=WOOLIES_XHR_PATTERN,
             retries=1,
         )
@@ -304,7 +308,7 @@ class WooliesCrawler:
                             break
 
                     if page_num < self.max_pages:
-                        await human_delay(3, 7)
+                        await human_delay(2, 4)
 
         n = len(all_products)
         if n >= MIN_PRODUCTS_SUCCESS:
