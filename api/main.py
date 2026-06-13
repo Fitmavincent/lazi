@@ -188,27 +188,21 @@ async def test_coles_crawl_v2_5():
 
 @app.get("/test/woolies-crawl")
 async def test_woolies_crawl():
-    """Test endpoint for Woolworths crawler without storage"""
-    # Set to 3 pages for testing
-    woolies_crawler_service.max_pages = 3
-
-    raw_data = await woolies_crawler_service.crawl_woolies_pipeline()
-    if not raw_data:
-        raise HTTPException(status_code=500, detail="Failed to fetch Woolworths data")
-
-    products = raw_data['products']
-    transformed_data = woolies_crawler_service.transform_product_data(products)
-
-    return {
-        "pagination_info": {
-            "pages_fetched": raw_data['pagination'],
-            "total_pages_attempted": woolies_crawler_service.current_page,
-            "max_pages_limit": woolies_crawler_service.max_pages,
-            "products_per_page": 36,
-            "actual_products_found": len(products)
-        },
-        "raw_samples": products[:5] if products else None,
-        "transformed_samples": transformed_data['data'][:5] if transformed_data['data'] else None,
-        "total_products": len(transformed_data['data']),
-        "total_half_price_products": len([p for p in products if p.get('price_was')])
-    }
+    """Test endpoint for the Woolies crawler without storage — limited to 2 pages"""
+    original_max_pages = woolies_crawler_service.max_pages
+    woolies_crawler_service.max_pages = 2
+    try:
+        result = await woolies_crawler_service.crawl_pipeline()
+        return {
+            "pagination_info": {
+                "pages_attempted": result["pages_attempted"],
+                "pages_succeeded": result["pages_succeeded"],
+                "pages_blocked": result["pages_blocked"],
+                "crawler_type": "Scrapling AsyncStealthySession (XHR capture)",
+            },
+            "samples": result["data"][:5],
+            "total_products": result["count"],
+            "crawl_status": result["crawl_status"],
+        }
+    finally:
+        woolies_crawler_service.max_pages = original_max_pages
