@@ -1,4 +1,7 @@
 __pycache__/
 *.py[cod]
 *env/
-*.env
+*.env# Local crawler debug artifacts
+*_debug.json
+*_debug.html
+repro_page.html
