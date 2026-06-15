@@ -8,9 +8,11 @@ from services.registry import (
     coles_v2_5_crawler_service,
     woolies_crawler_service,
     chemist_warehouse_crawler_service,
+    priceline_crawler_service,
     coles_refresh,
     woolies_refresh,
     chemist_warehouse_refresh,
+    priceline_refresh,
 )
 from services.freshness import is_stale, freshness_report
 from typing import Annotated
@@ -62,6 +64,7 @@ async def shutdown_services():
         await coles_refresh.shutdown()
         await woolies_refresh.shutdown()
         await chemist_warehouse_refresh.shutdown()
+        await priceline_refresh.shutdown()
     except Exception as e:
         logger.warning(f"Refresh manager shutdown error: {e}")
 
@@ -81,6 +84,7 @@ async def read_health():
             "coles": freshness_report(coles_data) | coles_refresh.status(),
             "woolies": freshness_report(woolies_data) | woolies_refresh.status(),
             "chemist_warehouse": freshness_report(cw_data) | chemist_warehouse_refresh.status(),
+            "priceline": freshness_report(await priceline_crawler_service.fetch_data()) | priceline_refresh.status(),
         },
     }
 
@@ -178,6 +182,23 @@ async def force_sync_chemist_warehouse_data():
         raise HTTPException(status_code=500, detail="Failed to sync data")
     return {"status": "success", "message": "Data synced successfully"}
 
+@app.get("/priceline-data")
+async def read_priceline_data():
+    """Read from saved JSON file; trigger background re-crawl when stale."""
+    data = await priceline_crawler_service.fetch_data()
+    priceline_refresh.trigger_if_needed(is_stale(data))
+    if not data:
+        raise HTTPException(status_code=404, detail="No data available")
+    return {k: v for k, v in data.items() if k not in _INTERNAL_FIELDS}
+
+@app.post("/priceline-data/sync")
+async def force_sync_priceline_data():
+    """Force sync data from Priceline"""
+    data = await priceline_crawler_service.force_sync()
+    if not data:
+        raise HTTPException(status_code=500, detail="Failed to sync data")
+    return {"status": "success", "message": "Data synced successfully"}
+
 class PasswordRequest(BaseModel):
     say: str
 
@@ -249,3 +270,24 @@ async def test_chemist_warehouse_crawl():
         }
     finally:
         chemist_warehouse_crawler_service.max_pages = original_max_pages
+
+@app.get("/test/priceline-crawl")
+async def test_priceline_crawl():
+    """Test endpoint for the Priceline crawler without storage — limited to 3 pages"""
+    original_max_pages = priceline_crawler_service.max_pages
+    priceline_crawler_service.max_pages = 3
+    try:
+        result = await priceline_crawler_service.crawl_pipeline()
+        return {
+            "pagination_info": {
+                "pages_attempted": result["pages_attempted"],
+                "pages_succeeded": result["pages_succeeded"],
+                "pages_blocked": result["pages_blocked"],
+                "crawler_type": "Scrapling AsyncStealthySession (in-page OCC API fetch)",
+            },
+            "samples": result["data"][:5],
+            "total_products": result["count"],
+            "crawl_status": result["crawl_status"],
+        }
+    finally:
+        priceline_crawler_service.max_pages = original_max_pages
