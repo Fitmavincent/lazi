@@ -7,8 +7,10 @@ from services.registry import (
     coles_v2_crawler_service,
     coles_v2_5_crawler_service,
     woolies_crawler_service,
+    chemist_warehouse_crawler_service,
     coles_refresh,
     woolies_refresh,
+    chemist_warehouse_refresh,
 )
 from services.freshness import is_stale, freshness_report
 from typing import Annotated
@@ -59,6 +61,7 @@ async def shutdown_services():
     try:
         await coles_refresh.shutdown()
         await woolies_refresh.shutdown()
+        await chemist_warehouse_refresh.shutdown()
     except Exception as e:
         logger.warning(f"Refresh manager shutdown error: {e}")
 
@@ -71,11 +74,13 @@ async def read_health():
     """Freshness diagnostics live here ONLY — data endpoints' shape is frozen."""
     coles_data = await coles_v2_5_crawler_service.fetch_data()
     woolies_data = await woolies_crawler_service.fetch_data()
+    cw_data = await chemist_warehouse_crawler_service.fetch_data()
     return {
         "status": "ok",
         "data_freshness": {
             "coles": freshness_report(coles_data) | coles_refresh.status(),
             "woolies": freshness_report(woolies_data) | woolies_refresh.status(),
+            "chemist_warehouse": freshness_report(cw_data) | chemist_warehouse_refresh.status(),
         },
     }
 
@@ -156,6 +161,23 @@ async def force_sync_woolies_data():
         raise HTTPException(status_code=500, detail="Failed to sync data")
     return {"status": "success", "message": "Data synced successfully"}
 
+@app.get("/chemist-warehouse-data")
+async def read_chemist_warehouse_data():
+    """Read from saved JSON file; trigger background re-crawl when stale."""
+    data = await chemist_warehouse_crawler_service.fetch_data()
+    chemist_warehouse_refresh.trigger_if_needed(is_stale(data))
+    if not data:
+        raise HTTPException(status_code=404, detail="No data available")
+    return {k: v for k, v in data.items() if k not in _INTERNAL_FIELDS}
+
+@app.post("/chemist-warehouse-data/sync")
+async def force_sync_chemist_warehouse_data():
+    """Force sync data from Chemist Warehouse"""
+    data = await chemist_warehouse_crawler_service.force_sync()
+    if not data:
+        raise HTTPException(status_code=500, detail="Failed to sync data")
+    return {"status": "success", "message": "Data synced successfully"}
+
 class PasswordRequest(BaseModel):
     say: str
 
@@ -206,3 +228,24 @@ async def test_woolies_crawl():
         }
     finally:
         woolies_crawler_service.max_pages = original_max_pages
+
+@app.get("/test/chemist-warehouse-crawl")
+async def test_chemist_warehouse_crawl():
+    """Test endpoint for the Chemist Warehouse crawler without storage — limited to 2 pages"""
+    original_max_pages = chemist_warehouse_crawler_service.max_pages
+    chemist_warehouse_crawler_service.max_pages = 2
+    try:
+        result = await chemist_warehouse_crawler_service.crawl_pipeline()
+        return {
+            "pagination_info": {
+                "pages_attempted": result["pages_attempted"],
+                "pages_succeeded": result["pages_succeeded"],
+                "pages_blocked": result["pages_blocked"],
+                "crawler_type": "Scrapling AsyncStealthySession (Algolia XHR capture)",
+            },
+            "samples": result["data"][:5],
+            "total_products": result["count"],
+            "crawl_status": result["crawl_status"],
+        }
+    finally:
+        chemist_warehouse_crawler_service.max_pages = original_max_pages

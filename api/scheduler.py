@@ -3,8 +3,10 @@ from apscheduler.triggers.cron import CronTrigger
 from services.registry import (
     coles_v2_5_crawler_service,
     woolies_crawler_service,
+    chemist_warehouse_crawler_service,
     coles_refresh,
     woolies_refresh,
+    chemist_warehouse_refresh,
 )
 from services.freshness import is_stale
 from datetime import datetime
@@ -45,6 +47,12 @@ async def fetch_woolies_data():
     if not started:
         logger.info("Cron: Woolies refresh already running or cooling down — skipped")
 
+async def fetch_chemist_warehouse_data():
+    logger.info(f"Cron: Chemist Warehouse crawl at {datetime.now()}")
+    started = chemist_warehouse_refresh.trigger_if_needed(stale=True)
+    if not started:
+        logger.info("Cron: Chemist Warehouse refresh already running or cooling down — skipped")
+
 async def conditional_retry():
     """Wednesday 06:00 — re-crawl only if the midnight run failed or never ran."""
     logger.info(f"Cron: conditional retry check at {datetime.now()}")
@@ -52,6 +60,8 @@ async def conditional_retry():
     coles_refresh.trigger_if_needed(is_stale(coles_data))
     woolies_data = await woolies_crawler_service.fetch_data()
     woolies_refresh.trigger_if_needed(is_stale(woolies_data))
+    cw_data = await chemist_warehouse_crawler_service.fetch_data()
+    chemist_warehouse_refresh.trigger_if_needed(is_stale(cw_data))
 
 def setup_scheduler():
     if not scheduler.running:
@@ -68,6 +78,13 @@ def setup_scheduler():
             fetch_coles_data_v2_5,
             CronTrigger(day_of_week='wed', hour=0, minute=15, timezone='Australia/Sydney'),
             id='fetch_coles_data_v2_5',
+            misfire_grace_time=None
+        )
+
+        scheduler.add_job(
+            fetch_chemist_warehouse_data,
+            CronTrigger(day_of_week='wed', hour=0, minute=25, timezone='Australia/Sydney'),
+            id='fetch_chemist_warehouse_data',
             misfire_grace_time=None
         )
 

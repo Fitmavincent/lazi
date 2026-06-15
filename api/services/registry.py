@@ -14,12 +14,15 @@ from services.special_crawler.coles_crawler import ColesCrawler
 from services.special_crawler.coles_crawler_v2 import ColesV2Crawler
 from services.special_crawler.coles_crawler_v2_5 import ColesV25Crawler
 from services.special_crawler.woolies_crawler import WooliesCrawler
+from services.special_crawler.chemist_warehouse_crawler import ChemistWarehouseCrawler
 from services.refresh_manager import RefreshManager
 
 coles_crawler_service = ColesCrawler()
 coles_v2_crawler_service = ColesV2Crawler()
 coles_v2_5_crawler_service = ColesV25Crawler()
 woolies_crawler_service = WooliesCrawler()
+chemist_warehouse_crawler_service = ChemistWarehouseCrawler()
 
 coles_refresh = RefreshManager("coles", coles_v2_5_crawler_service.force_sync)
 woolies_refresh = RefreshManager("woolies", woolies_crawler_service.force_sync)
+chemist_warehouse_refresh = RefreshManager("chemist_warehouse", chemist_warehouse_crawler_service.force_sync)
