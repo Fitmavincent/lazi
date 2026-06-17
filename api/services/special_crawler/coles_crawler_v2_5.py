@@ -47,9 +47,14 @@ PRICE_SELECTORS = [
 
 TILE_SELECTOR = 'section[data-testid="product-tile"]'
 
-MIN_PRODUCTS_TO_SAVE = 50
+# Save threshold kept low so a partially-throttled run (Coles aggressively
+# throttles datacenter IPs) still persists fresh data instead of being
+# discarded and leaving last week's specials stale.
+MIN_PRODUCTS_TO_SAVE = 30
 MIN_PRODUCTS_SUCCESS = 200
-MAX_PAGE_RETRIES = 2
+# A page that times out once is almost always being throttled; retrying it
+# twice more at the full timeout just burns the wall-time budget. One retry.
+MAX_PAGE_RETRIES = 1
 BLOCK_BACKOFF = [20, 45]
 # Abort the crawl early after this many consecutive failed pages — once the
 # session is flagged, burning through the remaining pages only wastes time.

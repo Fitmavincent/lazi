@@ -11,6 +11,10 @@ subsequent fetches.
 
 Guard rails:
   - one crawl at a time per retailer (in-process task handle)
+  - one crawl at a time GLOBALLY across all retailers — each crawl drives a
+    headless browser, and running several at once on the small Fly machine
+    starves CPU/memory and makes navigations time out. Serialising them lets
+    each crawl have the machine to itself.
   - cooldown between attempts so a blocked/failing crawler isn't hammered
     on every fetch
 """
@@ -26,6 +30,10 @@ DEFAULT_COOLDOWN_SECONDS = 30 * 60
 
 
 class RefreshManager:
+    # The manager whose crawl is currently running, app-wide. Only one crawl
+    # runs at a time across all retailers (see module docstring).
+    _global_active: "RefreshManager | None" = None
+
     def __init__(
         self,
         name: str,
@@ -42,6 +50,15 @@ class RefreshManager:
     def is_running(self) -> bool:
         return self._task is not None and not self._task.done()
 
+    @classmethod
+    def _global_crawl_running(cls) -> "RefreshManager | None":
+        """The manager with an in-progress crawl, if any (self-healing: a stale
+        reference whose task has finished is treated as not running)."""
+        active = cls._global_active
+        if active is not None and active.is_running:
+            return active
+        return None
+
     def status(self) -> dict:
         return {
             "refresh_in_progress": self.is_running,
@@ -57,11 +74,18 @@ class RefreshManager:
         if self.is_running:
             logger.info(f"[{self.name}] refresh already in progress — not triggering another")
             return False
+        active = self._global_crawl_running()
+        if active is not None:
+            logger.info(f"[{self.name}] another crawl ([{active.name}]) is running — not starting a concurrent one")
+            return False
         if self._last_attempt and (time.monotonic() - self._last_attempt) < self._cooldown:
             logger.info(f"[{self.name}] refresh attempted recently — cooling down")
             return False
 
         self._last_attempt = time.monotonic()
+        # Claim the global slot synchronously (no await before this) so two
+        # triggers in the same tick can't both start.
+        RefreshManager._global_active = self
         self._task = asyncio.create_task(self._run(), name=f"refresh-{self.name}")
         logger.info(f"[{self.name}] stale data detected — background refresh started")
         return True
@@ -78,6 +102,9 @@ class RefreshManager:
             raise
         except Exception:
             logger.exception(f"[{self.name}] background refresh raised")
+        finally:
+            if RefreshManager._global_active is self:
+                RefreshManager._global_active = None
 
     async def shutdown(self):
         if self.is_running:
