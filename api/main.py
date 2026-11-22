@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from services.service import Service
-from services.special_crawler.oz_crawler import OzCrawler
+from services.special_crawler.oz_crawler import OzCrawler, OzFeedUnavailable
+from services.refresh_manager import RefreshManager
 from services.registry import (
     coles_crawler_service,
     coles_v2_crawler_service,
@@ -18,6 +19,7 @@ from services.freshness import is_stale, freshness_report
 from typing import Annotated
 from scheduler import scheduler, setup_scheduler
 from pydantic import BaseModel
+import asyncio
 import logging
 
 service = Service()
@@ -55,6 +57,7 @@ async def start_scheduler():
 
 @app.on_event("shutdown")
 async def shutdown_services():
+    RefreshManager.clear_pending()
     try:
         if scheduler.running:
             scheduler.shutdown(wait=False)
@@ -75,18 +78,25 @@ def read_root():
 @app.get("/health")
 async def read_health():
     """Freshness diagnostics live here ONLY — data endpoints' shape is frozen."""
-    coles_data = await coles_v2_5_crawler_service.fetch_data()
-    woolies_data = await woolies_crawler_service.fetch_data()
-    cw_data = await chemist_warehouse_crawler_service.fetch_data()
+    coles_data, woolies_data, cw_data, priceline_data = await asyncio.gather(
+        coles_v2_5_crawler_service.fetch_data(),
+        woolies_crawler_service.fetch_data(),
+        chemist_warehouse_crawler_service.fetch_data(),
+        priceline_crawler_service.fetch_data(),
+    )
     return {
         "status": "ok",
         "data_freshness": {
             "coles": freshness_report(coles_data) | coles_refresh.status(),
             "woolies": freshness_report(woolies_data) | woolies_refresh.status(),
             "chemist_warehouse": freshness_report(cw_data) | chemist_warehouse_refresh.status(),
-            "priceline": freshness_report(await priceline_crawler_service.fetch_data()) | priceline_refresh.status(),
+            "priceline": freshness_report(priceline_data) | priceline_refresh.status(),
         },
     }
+
+@app.get("/livez")
+async def read_liveness():
+    return {"status": "ok"}
 
 @app.get("/calculate/{input}")
 def read_calculate(input: int):
@@ -94,8 +104,11 @@ def read_calculate(input: int):
 
 @app.get("/oz-data")
 def read_oz_data(page: int = 20, wish: Annotated[list[str] | None, Query()] = None):
-    data = oz_crawler_service.oz_crawl_pipeline(page, wish)
-    return data
+    try:
+        return oz_crawler_service.oz_crawl_pipeline(page, wish)
+    except OzFeedUnavailable as exc:
+        logger.warning("Ozbargain feed unavailable: %s", exc.__cause__ or exc)
+        raise HTTPException(status_code=502, detail="Ozbargain feed is unavailable") from exc
 
 @app.get("/coles-data")
 async def read_coles_data():

@@ -39,27 +39,27 @@ async def fetch_coles_data_v2_5():
     """Wednesday crawl — goes through the shared RefreshManager so it can
     never run concurrently with a fetch-triggered refresh."""
     logger.info(f"Cron: Coles V2.5 crawl at {datetime.now()}")
-    started = coles_refresh.trigger_if_needed(stale=True)
+    started = coles_refresh.trigger_if_needed(is_stale(await coles_v2_5_crawler_service.fetch_data()))
     if not started:
-        logger.info("Cron: Coles refresh already running or cooling down — skipped")
+        logger.info("Cron: Coles refresh skipped")
 
 async def fetch_woolies_data():
     logger.info(f"Cron: Woolies crawl at {datetime.now()}")
-    started = woolies_refresh.trigger_if_needed(stale=True)
+    started = woolies_refresh.trigger_if_needed(is_stale(await woolies_crawler_service.fetch_data()))
     if not started:
-        logger.info("Cron: Woolies refresh already running or cooling down — skipped")
+        logger.info("Cron: Woolies refresh skipped")
 
 async def fetch_chemist_warehouse_data():
     logger.info(f"Cron: Chemist Warehouse crawl at {datetime.now()}")
-    started = chemist_warehouse_refresh.trigger_if_needed(stale=True)
+    started = chemist_warehouse_refresh.trigger_if_needed(is_stale(await chemist_warehouse_crawler_service.fetch_data()))
     if not started:
-        logger.info("Cron: Chemist Warehouse refresh already running or cooling down — skipped")
+        logger.info("Cron: Chemist Warehouse refresh skipped")
 
 async def fetch_priceline_data():
     logger.info(f"Cron: Priceline crawl at {datetime.now()}")
-    started = priceline_refresh.trigger_if_needed(stale=True)
+    started = priceline_refresh.trigger_if_needed(is_stale(await priceline_crawler_service.fetch_data()))
     if not started:
-        logger.info("Cron: Priceline refresh already running or cooling down — skipped")
+        logger.info("Cron: Priceline refresh skipped")
 
 async def conditional_retry():
     """Wednesday 06:00 — re-crawl only if the midnight run failed or never ran."""

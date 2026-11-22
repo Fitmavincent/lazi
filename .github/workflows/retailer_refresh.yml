@@ -1,0 +1,23 @@
+name: Refresh production retailer feeds
+
+on:
+  schedule:
+    - cron: '8 0,6 * * WED'
+      timezone: Australia/Sydney
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-retailer-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 48
+    steps:
+      - uses: actions/checkout@v6
+      - name: Refresh and verify retailer snapshots
+        run: python3 .github/scripts/refresh_retailers.py

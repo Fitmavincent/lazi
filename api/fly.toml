@@ -31,7 +31,7 @@ kill_timeout = 180
   interval = "30s"
   method = "GET"
   timeout = "5s"
-  path = "/health"
+  path = "/livez"
 
 [[services]]
   internal_port = 80

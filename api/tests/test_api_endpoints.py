@@ -9,6 +9,7 @@ is touched.
 import os
 import asyncio
 from datetime import datetime, timedelta, timezone
+from unittest.mock import Mock
 
 os.environ.setdefault("R2_ENDPOINT_URL", "https://example.invalid")
 os.environ.setdefault("R2_ACCESS_KEY_ID", "test")
@@ -16,6 +17,7 @@ os.environ.setdefault("R2_SECRET_ACCESS_KEY", "test")
 os.environ.setdefault("R2_BUCKET_NAME", "test")
 
 import pytest
+import requests
 from fastapi.testclient import TestClient
 
 import main as main_module
@@ -75,6 +77,42 @@ def set_coles_data(monkeypatch, envelope):
     async def fetch_data():
         return envelope
     monkeypatch.setattr(registry.coles_v2_5_crawler_service, "fetch_data", fetch_data)
+
+
+def test_oz_feed_uses_latest_deals_when_no_default_keywords_match(client, monkeypatch):
+    response = Mock(content=b"""
+    <rss xmlns:media="http://search.yahoo.com/mrss/"><channel><item>
+      <title>Pantry staples $5.50</title>
+      <link>https://www.ozbargain.com.au/node/123</link>
+      <pubDate>Sun, 22 Nov 2026 09:00:00 +1100</pubDate>
+      <media:thumbnail url="https://example.com/deal.jpg" />
+    </item></channel></rss>
+    """)
+    monkeypatch.setattr("services.special_crawler.oz_crawler.requests.get", Mock(return_value=response))
+
+    res = client.get("/oz-data")
+    assert res.status_code == 200
+    assert res.json() == [{
+        "name": "Pantry staples $5.50",
+        "price": "$5.50",
+        "link": "https://www.ozbargain.com.au/node/123",
+        "node_url": "https://www.ozbargain.com.au/node/123",
+        "image": "https://example.com/deal.jpg",
+        "time": "2026-11-22T09:00:00+11:00",
+        "tag": None,
+    }]
+    assert client.get("/oz-data", params={"wish": "pantry"}).json() == res.json()
+    assert client.get("/oz-data", params={"wish": "iphone"}).json() == []
+
+
+def test_oz_upstream_http_error_is_reported(client, monkeypatch):
+    response = Mock()
+    response.raise_for_status.side_effect = requests.HTTPError("403 Forbidden")
+    monkeypatch.setattr("services.special_crawler.oz_crawler.requests.get", Mock(return_value=response))
+
+    res = client.get("/oz-data")
+    assert res.status_code == 502
+    assert res.json()["detail"] == "Ozbargain feed is unavailable"
 
 
 def test_v2_5_response_shape_is_frozen(client, monkeypatch):

@@ -28,7 +28,6 @@ WOOLIES_CATEGORIES = ["online-only-specials", "half-price"]
 # stealth browser session (same engine as the Coles V2.5 crawler) and capture
 # the category API JSON it fetches — clean, structured product data.
 WOOLIES_XHR_PATTERN = "apis/ui/browse/category"
-TILE_SELECTOR = "wc-product-tile"
 
 BLOCK_SIGNALS = [
     "Access Denied",
@@ -159,14 +158,7 @@ class WooliesCrawler:
             google_search=True,
             timeout=PAGE_TIMEOUT_MS,
             wait=2500,
-            # NB: no network_idle — Woolies loads ad/analytics traffic that
-            # rarely goes idle, so network_idle made each page wait near the
-            # full timeout. wait_selector on the product tile already
-            # guarantees the category XHR has fired and been captured.
-            # NB: no disable_resources either — wait_selector waits for the
-            # rendered <wc-product-tile>, which needs CSS/JS; blocking those
-            # would make every page wait out the full timeout. Coverage comes
-            # from the wall-time budget + page caps instead.
+            # The category response can be available before product tiles render.
             capture_xhr=WOOLIES_XHR_PATTERN,
             retries=1,
         )
@@ -174,7 +166,7 @@ class WooliesCrawler:
     async def _fetch(self, session: AsyncStealthySession, url: str):
         logger.info(f"Fetching: {url}")
         try:
-            return await session.fetch(url, wait_selector=TILE_SELECTOR)
+            return await session.fetch(url)
         except Exception as exc:
             logger.error(f"Fetch error for {url}: {exc}")
             return None
@@ -383,4 +375,4 @@ class WooliesCrawler:
             raise
 
     async def fetch_data(self) -> dict | None:
-        return self.load_from_file()
+        return await asyncio.to_thread(self.load_from_file)

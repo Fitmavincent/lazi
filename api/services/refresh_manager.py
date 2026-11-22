@@ -22,6 +22,7 @@ Guard rails:
 import asyncio
 import logging
 import time
+from collections import deque
 from collections.abc import Awaitable, Callable
 
 logger = logging.getLogger(__name__)
@@ -33,6 +34,7 @@ class RefreshManager:
     # The manager whose crawl is currently running, app-wide. Only one crawl
     # runs at a time across all retailers (see module docstring).
     _global_active: "RefreshManager | None" = None
+    _pending: "deque[RefreshManager]" = deque()
 
     def __init__(
         self,
@@ -45,6 +47,7 @@ class RefreshManager:
         self._cooldown = cooldown_seconds
         self._task: asyncio.Task | None = None
         self._last_attempt: float = 0.0
+        self._last_outcome: str | None = None
 
     @property
     def is_running(self) -> bool:
@@ -62,51 +65,66 @@ class RefreshManager:
     def status(self) -> dict:
         return {
             "refresh_in_progress": self.is_running,
+            "refresh_queued": self in self._pending,
             "last_attempt_age_seconds": round(time.monotonic() - self._last_attempt) if self._last_attempt else None,
+            "last_attempt_outcome": self._last_outcome,
             "cooldown_seconds": self._cooldown,
         }
 
     def trigger_if_needed(self, stale: bool) -> bool:
-        """Start a background refresh when data is stale. Returns True if a
-        refresh was started by this call."""
+        """Accept one refresh per stale retailer, in order of arrival."""
         if not stale:
             return False
-        if self.is_running:
-            logger.info(f"[{self.name}] refresh already in progress — not triggering another")
-            return False
-        active = self._global_crawl_running()
-        if active is not None:
-            logger.info(f"[{self.name}] another crawl ([{active.name}]) is running — not starting a concurrent one")
+        if self.is_running or self in self._pending:
             return False
         if self._last_attempt and (time.monotonic() - self._last_attempt) < self._cooldown:
             logger.info(f"[{self.name}] refresh attempted recently — cooling down")
             return False
 
+        if self._global_crawl_running() is not None:
+            self._pending.append(self)
+            logger.info(f"[{self.name}] stale data detected — refresh queued")
+        else:
+            self._start()
+        return True
+
+    def _start(self):
         self._last_attempt = time.monotonic()
+        self._last_outcome = None
         # Claim the global slot synchronously (no await before this) so two
         # triggers in the same tick can't both start.
         RefreshManager._global_active = self
         self._task = asyncio.create_task(self._run(), name=f"refresh-{self.name}")
         logger.info(f"[{self.name}] stale data detected — background refresh started")
-        return True
 
     async def _run(self):
         try:
             result = await self._sync_fn()
+            self._last_outcome = "saved" if result else "no_new_data"
             if result:
                 logger.info(f"[{self.name}] background refresh completed successfully")
             else:
                 logger.warning(f"[{self.name}] background refresh finished without new data (crawl failed/blocked)")
         except asyncio.CancelledError:
+            self._last_outcome = "cancelled"
             logger.warning(f"[{self.name}] background refresh cancelled (likely machine shutdown)")
             raise
         except Exception:
+            self._last_outcome = "error"
             logger.exception(f"[{self.name}] background refresh raised")
         finally:
             if RefreshManager._global_active is self:
                 RefreshManager._global_active = None
+                if self._pending:
+                    self._pending.popleft()._start()
+
+    @classmethod
+    def clear_pending(cls):
+        cls._pending.clear()
 
     async def shutdown(self):
+        if self in self._pending:
+            self._pending.remove(self)
         if self.is_running:
             self._task.cancel()
             try:

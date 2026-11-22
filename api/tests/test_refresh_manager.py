@@ -7,10 +7,11 @@ from services.refresh_manager import RefreshManager
 
 @pytest.fixture(autouse=True)
 def _reset_global_active():
-    # The global single-flight slot is class-level; reset it around each test.
     RefreshManager._global_active = None
+    RefreshManager.clear_pending()
     yield
     RefreshManager._global_active = None
+    RefreshManager.clear_pending()
 
 
 @pytest.mark.asyncio
@@ -34,16 +35,36 @@ async def test_only_one_crawl_runs_globally():
 
     assert a.trigger_if_needed(stale=True) is True
     await started["a"].wait()
-    # b must NOT start while a's crawl is running (global single-flight)
+    assert b.trigger_if_needed(stale=True) is True
+    assert b.status()["refresh_queued"] is True
+    assert b.status()["last_attempt_age_seconds"] is None
     assert b.trigger_if_needed(stale=True) is False
     assert b_calls == []
-    # once a finishes, the global slot frees and b can run
     release.set()
-    await asyncio.sleep(0.01)
+    await a._task
+    await b._task
     assert RefreshManager._global_active is None
-    assert b.trigger_if_needed(stale=True) is True
-    await asyncio.sleep(0.01)
+    assert b.status()["refresh_queued"] is False
+    assert b.status()["last_attempt_outcome"] == "saved"
     assert b_calls == [1]
+
+
+@pytest.mark.asyncio
+async def test_shutdown_discards_queued_refreshes():
+    release = asyncio.Event()
+
+    async def sync():
+        await release.wait()
+
+    active = RefreshManager("active", sync)
+    queued = RefreshManager("queued", sync)
+    assert active.trigger_if_needed(stale=True)
+    assert queued.trigger_if_needed(stale=True)
+    await asyncio.sleep(0)
+    RefreshManager.clear_pending()
+    await active.shutdown()
+    assert not queued.is_running
+    assert not queued.status()["refresh_queued"]
 
 
 @pytest.mark.asyncio

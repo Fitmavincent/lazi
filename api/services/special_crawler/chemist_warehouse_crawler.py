@@ -361,4 +361,4 @@ class ChemistWarehouseCrawler:
             raise
 
     async def fetch_data(self) -> dict | None:
-        return self.load_from_file()
+        return await asyncio.to_thread(self.load_from_file)
