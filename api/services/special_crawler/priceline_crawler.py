@@ -3,19 +3,12 @@ import boto3
 import logging
 import asyncio
 from datetime import datetime, timezone
-from scrapling.fetchers import AsyncStealthySession
+import requests
 from core.settings import get_settings
 from services.special_crawler.discounts import classify_discount
 
 PRICELINE_BASE_URL = "https://www.priceline.com.au"
 PRICELINE_API_BASE = "https://api.priceline.com.au"
-PRICELINE_SALE_URL = f"{PRICELINE_BASE_URL}/c/sale"
-# Priceline runs on SAP Commerce (Hybris OCC). Its product data comes from the
-# OCC REST API on api.priceline.com.au. Navigating to that API in the top frame
-# serves HTML, and capturing the auto-fired XHR yields an empty body — so,
-# unlike Coles/Woolies/CW, we call the API from *inside* the loaded /c/sale page
-# via fetch() (page.evaluate). Same stealth session + frozen output, different
-# fetch mechanism (the user sanctioned per-retailer implementations).
 PRICELINE_OCC_PATH = "/occ/v2/priceline/products/search"
 PRICELINE_FIELDS = (
     "products(code,name,url,price(FULL),discountedPrice(FULL),"
@@ -23,50 +16,15 @@ PRICELINE_FIELDS = (
 )
 PRICELINE_QUERY = ":relevance:allCategories:sale"
 PAGE_SIZE = 36
-DATA_NODE_ID = "__plp_data"
-
 MIN_PRODUCTS_TO_SAVE = 40
 MIN_PRODUCTS_SUCCESS = 150
 MAX_PAGES = 40
-# In-page JS pagination budget (ms). Kept under the page timeout so evaluate
-# isn't killed mid-loop. Outer wall-time bound below is the hard ceiling.
-JS_BUDGET_MS = 240000
-MAX_CRAWL_SECONDS = 600
+MAX_CRAWL_SECONDS = 240
+REQUEST_TIMEOUT = (5, 15)
+PAGE_DELAY_SECONDS = 0.4
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-
-# JS run inside the /c/sale page: paginate the OCC search API and return all
-# product JSON. Plain GET fetch (no custom headers → no CORS preflight).
-_PAGINATE_JS = """
-async (cfg) => {
-    const start = Date.now();
-    const all = [];
-    let pagination = null;
-    for (let pg = 0; pg < cfg.maxPages; pg++) {
-        if (Date.now() - start > cfg.budgetMs) break;
-        const url = cfg.apiBase + cfg.path
-            + "?fields=" + encodeURIComponent(cfg.fields)
-            + "&query=" + encodeURIComponent(cfg.query)
-            + "&pageSize=" + cfg.pageSize
-            + "&currentPage=" + pg
-            + "&lang=en&curr=AUD";
-        let r;
-        try { r = await fetch(url); } catch (e) { continue; }
-        if (!r.ok) continue;
-        let d;
-        try { d = await r.json(); } catch (e) { continue; }
-        const prods = (d && d.products) || [];
-        if (!prods.length) break;
-        all.push(...prods);
-        pagination = d.pagination || null;
-        if (pagination && pg >= (pagination.totalPages - 1)) break;
-        await new Promise(res => setTimeout(res, 250 + Math.random() * 400));
-    }
-    return JSON.stringify({ products: all, pagination: pagination });
-}
-"""
 
 
 # ---------------------------------------------------------------------------
@@ -141,9 +99,8 @@ class ProductExtractor:
 
 class PricelineCrawler:
     def __init__(self):
-        logger.info("Initializing PricelineCrawler (scrapling 0.4 / in-page OCC API fetch)")
+        logger.info("Initializing PricelineCrawler (direct OCC API)")
         self.max_pages = MAX_PAGES
-        self.headless = True
         self.extractor = ProductExtractor()
 
         settings = get_settings()
@@ -162,63 +119,57 @@ class PricelineCrawler:
             logger.error(f"Failed to initialize S3 client: {e}")
             raise
 
-    def _new_session(self) -> AsyncStealthySession:
-        return AsyncStealthySession(
-            headless=self.headless,
-            block_webrtc=False,
-            locale="en-AU",
-            timezone_id="Australia/Sydney",
-            google_search=True,
-            timeout=300000,  # one navigation does the whole JS pagination loop
-            wait=3000,
-            retries=1,
+    def _fetch_page(self, session: requests.Session, page: int) -> dict:
+        response = session.get(
+            PRICELINE_API_BASE + PRICELINE_OCC_PATH,
+            params={
+                "fields": PRICELINE_FIELDS,
+                "query": PRICELINE_QUERY,
+                "pageSize": PAGE_SIZE,
+                "currentPage": page,
+                "lang": "en",
+                "curr": "AUD",
+            },
+            timeout=REQUEST_TIMEOUT,
         )
-
-    async def _paginate_action(self, page):
-        """page_action: from inside the loaded /c/sale page, fetch the OCC API
-        page-by-page and stash the combined JSON in a DOM node we can read."""
-        budget_ms = min(JS_BUDGET_MS, int(MAX_CRAWL_SECONDS * 1000 * 0.8))
-        cfg = {
-            "apiBase": PRICELINE_API_BASE,
-            "path": PRICELINE_OCC_PATH,
-            "fields": PRICELINE_FIELDS,
-            "query": PRICELINE_QUERY,
-            "pageSize": PAGE_SIZE,
-            "maxPages": self.max_pages,
-            "budgetMs": budget_ms,
-        }
-        result = await page.evaluate(_PAGINATE_JS, cfg)
-        await page.evaluate(
-            """(args) => { const d = document.createElement('div'); d.id = args.id;
-                 d.textContent = args.t; document.body.appendChild(d); }""",
-            {"id": DATA_NODE_ID, "t": result},
-        )
+        response.raise_for_status()
+        payload = response.json()
+        if not isinstance(payload, dict) or not isinstance(payload.get("products"), list):
+            raise ValueError("OCC response is missing its products list")
+        return payload
 
     async def crawl_pipeline(self) -> dict:
-        logger.info(f"Starting Priceline crawl pipeline (up to {self.max_pages} pages via in-page OCC fetch)")
-        loop = asyncio.get_event_loop()
+        logger.info("Starting Priceline crawl pipeline (up to %s pages via OCC API)", self.max_pages)
+        loop = asyncio.get_running_loop()
         deadline = loop.time() + MAX_CRAWL_SECONDS
-
         raw_products: list[dict] = []
-        pagination = {}
-        async with self._new_session() as session:
-            try:
-                response = await session.fetch(PRICELINE_SALE_URL, page_action=self._paginate_action)
-            except Exception as exc:
-                logger.error(f"Fetch error: {exc}")
-                response = None
+        pages_attempted = pages_succeeded = pages_blocked = 0
 
-            if response is not None and loop.time() < deadline + 1:
-                node = response.css(f'#{DATA_NODE_ID}')
-                if node:
-                    try:
-                        payload = json.loads(node.first.get_all_text())
-                        raw_products = payload.get("products", [])
-                        pagination = payload.get("pagination") or {}
-                    except Exception as exc:
-                        logger.error(f"Could not parse in-page payload: {exc}")
-                else:
-                    logger.warning("No data node found — page may have been blocked")
+        with requests.Session() as session:
+            for page in range(self.max_pages):
+                if loop.time() >= deadline:
+                    break
+                pages_attempted += 1
+                try:
+                    payload = await asyncio.to_thread(self._fetch_page, session, page)
+                except requests.HTTPError as exc:
+                    status = exc.response.status_code if exc.response is not None else None
+                    pages_blocked = int(status in (401, 403, 429))
+                    logger.warning("Priceline OCC page %s returned HTTP %s", page, status)
+                    break
+                except (requests.RequestException, ValueError) as exc:
+                    logger.warning("Could not read Priceline OCC page %s: %s", page, exc)
+                    break
+
+                pages_succeeded += 1
+                products = payload["products"]
+                raw_products.extend(p for p in products if isinstance(p, dict))
+                pagination = payload.get("pagination")
+                total_pages = pagination.get("totalPages") if isinstance(pagination, dict) else None
+                if not products or (isinstance(total_pages, int) and page + 1 >= total_pages):
+                    break
+                if page + 1 < self.max_pages:
+                    await asyncio.sleep(PAGE_DELAY_SECONDS)
 
         # Dedupe by product link / code
         seen: set[str] = set()
@@ -231,9 +182,8 @@ class PricelineCrawler:
 
         all_products = self.extractor.extract_all(deduped)
         n = len(all_products)
-        pages_done = len(raw_products) // PAGE_SIZE if raw_products else 0
 
-        if n >= MIN_PRODUCTS_SUCCESS:
+        if n >= MIN_PRODUCTS_SUCCESS and pages_succeeded == pages_attempted:
             crawl_status = "success"
         elif n >= MIN_PRODUCTS_TO_SAVE:
             crawl_status = "partial"
@@ -244,10 +194,10 @@ class PricelineCrawler:
         return {
             "synced_at": datetime.now(timezone.utc).isoformat(),
             "crawl_status": crawl_status,
-            "pages_attempted": pages_done,
-            "pages_succeeded": pages_done,
-            "pages_blocked": 0 if raw_products else 1,
-            "crawler_version": "priceline-v1",
+            "pages_attempted": pages_attempted,
+            "pages_succeeded": pages_succeeded,
+            "pages_blocked": pages_blocked,
+            "crawler_version": "priceline-v2",
             "count": n,
             "data": all_products,
         }

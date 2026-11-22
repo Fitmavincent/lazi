@@ -1,13 +1,11 @@
 """
 Debug version of the Priceline crawler.
 
-Reuses the production PricelineCrawler pipeline (scrapling 0.4
-AsyncStealthySession + in-page OCC API fetch) but swaps R2 storage for local
-files.
+Reuses the production Priceline OCC API pipeline and saves results locally.
 
 Run:
     cd api
-    python -m services.special_crawler.debug_priceline_crawler [max_pages] [--headed]
+    python -m services.special_crawler.debug_priceline_crawler [max_pages]
 """
 
 import json
@@ -22,11 +20,10 @@ OUTPUT_JSON = "priceline_specials_debug.json"
 
 
 class DebugPricelineCrawler(PricelineCrawler):
-    def __init__(self, max_pages: int = 40, headless: bool = True):
+    def __init__(self, max_pages: int = 40):
         self.max_pages = max_pages
-        self.headless = headless
         self.extractor = ProductExtractor()
-        logger.info(f"DebugPricelineCrawler initialized (max_pages={max_pages}, headless={headless})")
+        logger.info(f"DebugPricelineCrawler initialized (max_pages={max_pages})")
 
     def save_to_file(self, data: dict):
         with open(OUTPUT_JSON, 'w', encoding='utf-8') as f:
@@ -79,9 +76,7 @@ async def main():
                         format='%(asctime)s %(levelname)-8s %(name)s — %(message)s', datefmt='%H:%M:%S')
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
     max_pages = int(args[0]) if args else 40
-    headless = '--headed' not in sys.argv
-
-    crawler = DebugPricelineCrawler(max_pages=max_pages, headless=headless)
+    crawler = DebugPricelineCrawler(max_pages=max_pages)
     data = await crawler.crawl_pipeline()
     ok = validate_data_structure(data)
     crawler.save_to_file(data)

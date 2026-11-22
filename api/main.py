@@ -296,7 +296,7 @@ async def test_priceline_crawl():
                 "pages_attempted": result["pages_attempted"],
                 "pages_succeeded": result["pages_succeeded"],
                 "pages_blocked": result["pages_blocked"],
-                "crawler_type": "Scrapling AsyncStealthySession (in-page OCC API fetch)",
+                "crawler_type": "Priceline OCC product API",
             },
             "samples": result["data"][:5],
             "total_products": result["count"],
