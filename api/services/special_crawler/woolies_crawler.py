@@ -19,9 +19,9 @@ WOOLIES_SPECIAL_BASE = f"{WOOLIES_BASE_URL}/shop/browse/specials"
 # The other categories are everyday-low / seasonal / multibuy programs with
 # WasPrice == Price (nothing quantifiable), and "everyday-market-specials-and-
 # offers" is the MarketPlace (third-party, non-grocery) feed — both excluded.
-# online-only is crawled first (it's small) so its non-half discounts are
-# always represented before the wall-time budget is spent on half-price.
-WOOLIES_CATEGORIES = ["online-only-specials", "half-price"]
+# Half-price is the main feed. Reserve part of the budget for online-only
+# specials so either category can make progress if the other is slow.
+WOOLIES_CATEGORIES = ("half-price", "online-only-specials")
 
 # The specials page renders products into shadow-DOM web components
 # (<wc-product-tile>), so the HTML can't be scraped directly. Instead we run a
@@ -37,7 +37,8 @@ BLOCK_SIGNALS = [
     "cf-challenge",
 ]
 
-MIN_PRODUCTS_TO_SAVE = 50
+# A single half-price page can contain only 40–45 qualifying deals.
+MIN_PRODUCTS_TO_SAVE = 30
 MIN_PRODUCTS_SUCCESS = 150
 MAX_PAGE_RETRIES = 2
 BLOCK_BACKOFF = [20, 45]
@@ -52,6 +53,7 @@ PAGE_TIMEOUT_MS = 30000
 # minutes after the triggering request goes idle, so the crawl must finish and
 # save well within that window rather than grinding through every page.
 MAX_CRAWL_SECONDS = 600
+ONLINE_ONLY_RESERVE_SECONDS = 120
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -256,22 +258,30 @@ class WooliesCrawler:
             await self._warmup(session)
 
             for category in WOOLIES_CATEGORIES:
-                if loop.time() >= deadline:
+                category_deadline = deadline
+                if category == "half-price":
+                    category_deadline -= ONLINE_ONLY_RESERVE_SECONDS
+                if loop.time() >= category_deadline:
                     logger.warning(f"Wall-time budget reached before category {category!r} — skipping")
                     break
                 logger.info(f"=== Category: {category} ===")
                 consecutive_failures = 0
 
                 for page_num in range(1, self.max_pages + 1):
-                    if loop.time() >= deadline:
+                    if loop.time() >= category_deadline:
                         logger.warning(
-                            f"Crawl wall-time budget ({MAX_CRAWL_SECONDS}s) exceeded in {category!r} "
+                            f"Crawl budget exceeded in {category!r} "
                             f"at page {page_num - 1} with {len(all_products)} products total"
                         )
                         break
                     pages_attempted += 1
                     logger.info(f"[{category}] page {page_num}/{self.max_pages}")
-                    products = await self._crawl_page_with_retry(session, category, page_num)
+                    try:
+                        async with asyncio.timeout_at(category_deadline):
+                            products = await self._crawl_page_with_retry(session, category, page_num)
+                    except TimeoutError:
+                        logger.warning(f"[{category}] budget expired during page {page_num}")
+                        break
 
                     if products:
                         new_products = []

@@ -1,11 +1,13 @@
 """Woolies extractor regression test against a saved category-API JSON snapshot."""
 
+from contextlib import asynccontextmanager
 import json
 import pathlib
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from services.special_crawler.woolies_crawler import ProductExtractor
+from services.special_crawler.woolies_crawler import ProductExtractor, WooliesCrawler
 
 SNAPSHOT = pathlib.Path(__file__).resolve().parent / "fixtures" / "woolies_category_snapshot.json"
 
@@ -65,3 +67,32 @@ def test_empty_or_failed_payload_returns_empty():
     assert ex.extract_all({}) == []
     assert ex.extract_all({"Success": False, "Bundles": []}) == []
     assert ex.extract_all({"Success": True, "Bundles": []}) == []
+
+
+@pytest.mark.asyncio
+async def test_single_half_price_page_saves_as_partial():
+    crawler = WooliesCrawler.__new__(WooliesCrawler)
+    crawler.max_pages = 1
+    crawler._warmup = AsyncMock()
+    crawler.save_to_file = Mock()
+    visited = []
+
+    @asynccontextmanager
+    async def session():
+        yield object()
+
+    async def crawl_page(_, category, page_num):
+        visited.append((category, page_num))
+        if category == "half-price":
+            return [{"name": f"Deal {i}"} for i in range(43)]
+        return []
+
+    crawler._new_session = session
+    crawler._crawl_page_with_retry = crawl_page
+
+    result = await crawler.force_sync()
+
+    assert visited == [("half-price", 1), ("online-only-specials", 1)]
+    assert result["count"] == 43
+    assert result["crawl_status"] == "partial"
+    crawler.save_to_file.assert_called_once_with(result)
