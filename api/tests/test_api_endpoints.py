@@ -6,6 +6,7 @@ crawler fetch/sync methods are monkeypatched so no network or storage
 is touched.
 """
 
+from contextlib import nullcontext
 import os
 import asyncio
 from datetime import datetime, timedelta, timezone
@@ -17,7 +18,6 @@ os.environ.setdefault("R2_SECRET_ACCESS_KEY", "test")
 os.environ.setdefault("R2_BUCKET_NAME", "test")
 
 import pytest
-import requests
 from fastapi.testclient import TestClient
 
 import main as main_module
@@ -86,6 +86,26 @@ def oz_client(client, monkeypatch):
     return client
 
 
+@pytest.fixture
+def oz_page(monkeypatch):
+    playwright = Mock()
+    browser = playwright.firefox.launch.return_value
+    page = browser.new_page.return_value
+    page.goto.return_value = Mock(ok=True, status=200)
+    monkeypatch.setattr("services.special_crawler.oz_crawler.sync_playwright", lambda: nullcontext(playwright))
+    return page
+
+
+def oz_deal_card(title, node_id, extra=""):
+    return f"""
+    <div class="node-ozbdeal">
+      <h2 class="title" data-title="{title}"><a href="/node/{node_id}">{title}</a></h2>
+      <div class="submitted">on 22/11/2026 - 09:00</div>
+      {extra}
+    </div>
+    """
+
+
 @pytest.mark.parametrize(
     ("title", "price"),
     [
@@ -94,17 +114,14 @@ def oz_client(client, monkeypatch):
         ("Pantry staples $1,299.95, delivered", "$1,299.95"),
     ],
 )
-def test_oz_feed_uses_latest_deals_when_no_default_keywords_match(oz_client, monkeypatch, title, price):
-    response = Mock(content=f"""
-    <rss xmlns:media="http://search.yahoo.com/mrss/" xmlns:oz="https://www.ozbargain.com.au"><channel><item>
-      <title>{title}</title>
-      <link>https://www.ozbargain.com.au/node/123</link>
-      <pubDate>Sun, 22 Nov 2026 09:00:00 +1100</pubDate>
-      <media:thumbnail url="https://example.com/deal.jpg" />
-      <oz:meta url="https://shop.example.com/pantry" link="https://www.ozbargain.com.au/goto/123" />
-    </item></channel></rss>
-    """.encode())
-    monkeypatch.setattr("services.special_crawler.oz_crawler.requests.get", Mock(return_value=response))
+def test_oz_feed_uses_latest_deals_when_no_default_keywords_match(oz_client, oz_page, title, price):
+    oz_page.content.return_value = oz_deal_card(title, 123, """
+    <div class="foxshot-container">
+      <a href="/goto/123" title="Go to https://shop.example.com/pantry">
+        <img src="https://example.com/deal.jpg" />
+      </a>
+    </div>
+    """)
 
     res = oz_client.get("/oz-data")
     assert res.status_code == 200
@@ -121,49 +138,53 @@ def test_oz_feed_uses_latest_deals_when_no_default_keywords_match(oz_client, mon
     assert oz_client.get("/oz-data", params={"wish": "iphone"}).json() == []
 
 
-def test_oz_upstream_http_error_is_reported(oz_client, monkeypatch):
-    response = Mock()
-    response.raise_for_status.side_effect = requests.HTTPError("403 Forbidden")
-    monkeypatch.setattr("services.special_crawler.oz_crawler.requests.get", Mock(return_value=response))
+def test_oz_upstream_http_error_stops_browser_and_backs_off(oz_client, oz_page):
+    oz_page.goto.return_value = Mock(ok=False, status=403)
 
-    res = oz_client.get("/oz-data")
-    assert res.status_code == 502
-    assert res.json()["detail"] == "Ozbargain feed is unavailable"
+    for _ in range(2):
+        res = oz_client.get("/oz-data")
+        assert res.status_code == 502
+        assert res.json()["detail"] == "Ozbargain feed is unavailable"
+
+    assert oz_page.goto.call_count == 1
 
 
-def test_oz_search_includes_older_pages_without_duplicate_or_expired_deals(oz_client, monkeypatch):
-    calls = []
-    first_item = """
-    <item><title>Monitor $399</title><link>https://www.ozbargain.com.au/node/123</link></item>
-    """
-    older_items = """
-    <item>
-      <title>Monitor $249</title><link>https://www.ozbargain.com.au/node/122</link>
-      <oz:meta link="https://www.ozbargain.com.au/goto/122" />
-    </item>
-    <item>
-      <title>Monitor $199</title><link>https://www.ozbargain.com.au/node/121</link>
-      <oz:meta expiry="2020-11-22T00:00:00+11:00" />
-    </item>
-    """
-    pages = {0: first_item, 1: first_item + older_items}
+def test_oz_search_includes_older_pages_without_duplicate_or_expired_deals(oz_client, oz_page):
+    first_item = oz_deal_card("Monitor $399", 123)
+    older_items = oz_deal_card("Monitor $249", 122, '<a href="/goto/122">Go to deal</a>') + oz_deal_card(
+        "Monitor $199", 121, '<span class="tagger expired">Expired</span>'
+    )
+    oz_page.goto.side_effect = [Mock(ok=True), Mock(ok=True), Mock(ok=False, status=429)]
+    oz_page.content.side_effect = [first_item, first_item + older_items]
 
-    def fetch_page(url, *, params, timeout):
-        index = params["page"] if params else 0
-        calls.append(index)
-        if index == 2:
-            raise requests.Timeout()
-        items = pages.get(index, "")
-        return Mock(content=f'<rss xmlns:oz="https://www.ozbargain.com.au"><channel>{items}</channel></rss>'.encode())
-
-    monkeypatch.setattr("services.special_crawler.oz_crawler.requests.get", fetch_page)
     results = oz_client.get("/oz-data", params={"wish": "monitor"}).json()
+
     assert [(deal["price"], deal["node_url"]) for deal in results] == [
         ("$399", None),
         ("$249", "https://www.ozbargain.com.au/goto/122"),
     ]
     assert oz_client.get("/oz-data", params={"wish": "monitor", "page": 1}).json() == results[:1]
-    assert sorted(calls) == list(range(FEED_PAGE_COUNT))
+    assert [call.args[0] for call in oz_page.goto.call_args_list] == [
+        "https://www.ozbargain.com.au/deals",
+        "https://www.ozbargain.com.au/deals?page=1",
+        "https://www.ozbargain.com.au/deals?page=2",
+    ]
+
+
+def test_oz_preserves_good_cache_when_a_refresh_is_blocked(oz_client, oz_page, monkeypatch):
+    clock = [1000]
+    monkeypatch.setattr("services.special_crawler.oz_crawler.monotonic", lambda: clock[0])
+    oz_page.content.return_value = oz_deal_card("Monitor $399", 123)
+
+    first = oz_client.get("/oz-data").json()
+    assert len(first) == 1
+    assert oz_page.goto.call_count == FEED_PAGE_COUNT
+
+    clock[0] += 120
+    oz_page.goto.return_value = Mock(ok=False, status=429)
+    assert oz_client.get("/oz-data").json() == first
+    assert oz_client.get("/oz-data").json() == first
+    assert oz_page.goto.call_count == FEED_PAGE_COUNT + 1
 
 
 def test_v2_5_response_shape_is_frozen(client, monkeypatch):

@@ -1,23 +1,27 @@
-from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
-from email.utils import parsedate_to_datetime
+from datetime import datetime
 import logging
 import re
 from threading import Lock
 from time import monotonic
-from urllib.parse import urlsplit
-from xml.etree import ElementTree
+from urllib.parse import urljoin, urlsplit
 
-import requests
+from bs4 import BeautifulSoup
+from playwright.sync_api import Error as PlaywrightError, sync_playwright
+
+from services.freshness import SYDNEY_TZ
 
 
-FEED_URL = "https://www.ozbargain.com.au/deals/feed"
+BASE_URL = "https://www.ozbargain.com.au"
+DEALS_URL = BASE_URL + "/deals"
 FEED_PAGE_COUNT = 6
 FEED_CACHE_SECONDS = 120
-OZBARGAIN_META = "{https://www.ozbargain.com.au}meta"
-MEDIA_THUMBNAIL = "{http://search.yahoo.com/mrss/}thumbnail"
+FAILED_REFRESH_SECONDS = 300
+MAX_STALE_SECONDS = 1800
+CRAWL_TIMEOUT_SECONDS = 24
+PAGE_TIMEOUT_MS = 7000
 DEFAULT_WISH_LIST = ("LEGO", "Xiaomi", "DJI", "iPhone", "Apple", "RTX")
 PRICE_PATTERN = re.compile(r"\$(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{2})?")
+POST_TIME_PATTERN = re.compile(r"\d{1,2}/\d{1,2}/\d{4} - \d{2}:\d{2}")
 logger = logging.getLogger(__name__)
 
 
@@ -25,106 +29,115 @@ class OzFeedUnavailable(Exception):
     pass
 
 
-def parse_expiry(value: str) -> datetime | None:
-    try:
-        if value.isdecimal():
-            return datetime.fromtimestamp(int(value), timezone.utc)
-        expiry = datetime.fromisoformat(value)
-        return expiry if expiry.tzinfo else expiry.replace(tzinfo=timezone.utc)
-    except (ValueError, OverflowError, OSError):
+def find_retailer_link(card) -> str | None:
+    offer = card.select_one('a[href^="/goto/"]')
+    if offer is None:
         return None
 
-
-def find_retailer_link(meta: ElementTree.Element | None) -> str | None:
-    if meta is None:
-        return None
-
-    for field in ("url", "link"):
-        value = meta.get(field, "").strip()
+    label = offer.get("title", "")
+    if label.startswith("Go to "):
+        value = label.removeprefix("Go to ").strip()
         try:
             target = urlsplit(value)
+            host = target.hostname
         except ValueError:
-            continue
-        if target.scheme not in ("http", "https") or not target.hostname:
-            continue
-        host = target.hostname
-        is_ozbargain = host == "ozbargain.com.au" or host.endswith(".ozbargain.com.au")
-        if not is_ozbargain or target.path.startswith("/goto/"):
+            host = None
+        if host and target.scheme in ("http", "https"):
+            if host == "ozbargain.com.au" or host.endswith(".ozbargain.com.au"):
+                return None
             return value
-    return None
+    return urljoin(BASE_URL, offer["href"])
 
 
-def parse_deal(item, now):
-    title = item.findtext("title", "").strip()
-    link = item.findtext("link", "").strip()
-    if not title or not link:
+def parse_deal(card):
+    if card.select_one(".tagger.expired"):
+        return None
+    heading = card.select_one("h2.title")
+    discussion = heading.select_one('a[href^="/node/"]') if heading else None
+    if discussion is None:
+        return None
+    title = (heading.get("data-title") or discussion.get_text(" ", strip=True)).strip()
+    if not title:
         return None
 
-    meta = item.find(OZBARGAIN_META)
-    thumbnail = item.find(MEDIA_THUMBNAIL)
-    expiry = parse_expiry(meta.get("expiry", "")) if meta is not None else None
-    if expiry is not None and expiry <= now:
-        return None
-
+    time_node = card.select_one(".submitted")
+    match = POST_TIME_PATTERN.search(time_node.get_text(" ", strip=True)) if time_node else None
     try:
-        posted = parsedate_to_datetime(item.findtext("pubDate", ""))
+        posted = datetime.strptime(match.group(), "%d/%m/%Y - %H:%M").replace(tzinfo=SYDNEY_TZ) if match else None
     except ValueError:
         posted = None
 
     price = PRICE_PATTERN.search(title)
+    thumbnail = card.select_one(".foxshot-container img[src]")
     return {
         "name": title,
         "price": price.group() if price else None,
-        "link": link,
-        "node_url": find_retailer_link(meta),
-        "image": thumbnail.get("url") if thumbnail is not None else None,
+        "link": urljoin(BASE_URL, discussion["href"]),
+        "node_url": find_retailer_link(card),
+        "image": urljoin(BASE_URL, thumbnail["src"]) if thumbnail else None,
         "time": posted,
         "tag": None,
     }
 
 
-def fetch_feed_page(index: int) -> list[ElementTree.Element] | None:
+def crawl_feed_pages() -> list[list[dict]]:
+    pages = []
+    deadline = monotonic() + CRAWL_TIMEOUT_SECONDS
     try:
-        response = requests.get(FEED_URL, params={"page": index} if index else None, timeout=6)
-        response.raise_for_status()
-        channel = ElementTree.fromstring(response.content).find("channel")
-        if channel is not None:
-            return channel.findall("item")
-        logger.warning("OzBargain RSS page %d is missing its channel", index)
-    except (requests.RequestException, ElementTree.ParseError) as exc:
-        logger.warning("Could not load OzBargain RSS page %d: %s", index, exc)
-    return None
+        with sync_playwright() as playwright:
+            browser = playwright.firefox.launch(headless=True, timeout=PAGE_TIMEOUT_MS)
+            try:
+                page = browser.new_page()
+                for index in range(FEED_PAGE_COUNT):
+                    remaining_ms = int((deadline - monotonic()) * 1000)
+                    if remaining_ms <= 0:
+                        break
+                    url = f"{DEALS_URL}?page={index}" if index else DEALS_URL
+                    response = page.goto(
+                        url, wait_until="domcontentloaded", timeout=min(PAGE_TIMEOUT_MS, remaining_ms)
+                    )
+                    if response is None or not response.ok:
+                        logger.warning("OzBargain page %d returned HTTP %s", index, response.status if response else None)
+                        break
+                    cards = BeautifulSoup(page.content(), "html.parser").select(".node-ozbdeal")
+                    if not cards:
+                        logger.warning("OzBargain page %d returned no deal cards", index)
+                        break
+                    pages.append([deal for card in cards if (deal := parse_deal(card)) is not None])
+            finally:
+                browser.close()
+    except PlaywrightError as exc:
+        logger.warning("OzBargain browser crawl stopped after %d pages: %s", len(pages), exc)
+    return pages
 
 
 class OzCrawler:
     def __init__(self):
         self._lock = Lock()
-        self._pages: list[list[ElementTree.Element] | None] = []
+        self._pages: list[list[dict]] = []
         self._refresh_after = 0.0
+        self._stale_after = 0.0
 
-    def _feed_pages(self):
-        # The default view and keyword searches share one batch of RSS pages.
+    def _feed_pages(self) -> list[list[dict]]:
         with self._lock:
             if monotonic() >= self._refresh_after:
-                with ThreadPoolExecutor(max_workers=3) as pool:
-                    pages = list(pool.map(fetch_feed_page, range(FEED_PAGE_COUNT)))
-                if any(items is not None for items in pages):
+                pages = crawl_feed_pages()
+                now = monotonic()
+                complete = len(pages) == FEED_PAGE_COUNT
+                if pages and (len(pages) >= len(self._pages) or now >= self._stale_after):
                     self._pages = pages
-                    self._refresh_after = monotonic() + FEED_CACHE_SECONDS
-                return pages
-            return self._pages
+                    self._stale_after = now + MAX_STALE_SECONDS
+                self._refresh_after = now + (FEED_CACHE_SECONDS if complete else FAILED_REFRESH_SECONDS)
+            return self._pages if monotonic() < self._stale_after else []
 
     def oz_crawl_pipeline(self, page: int, wish_list: list[str] | None = None):
         pages = self._feed_pages()[:max(1, page)]
-        if all(items is None for items in pages):
-            raise OzFeedUnavailable("Could not load OzBargain RSS")
-        now = datetime.now(timezone.utc)
+        if not pages:
+            raise OzFeedUnavailable("Could not load the OzBargain deal listings")
         deals = {}
         for items in pages:
-            for item in items or ():
-                deal = parse_deal(item, now)
-                if deal is not None:
-                    deals.setdefault(deal["link"], deal)
+            for deal in items:
+                deals.setdefault(deal["link"], deal)
 
         terms = tuple(word.strip().casefold() for word in (wish_list or DEFAULT_WISH_LIST))
         matches = [deal for deal in deals.values() if any(term in deal["name"].casefold() for term in terms)]
