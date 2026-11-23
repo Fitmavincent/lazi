@@ -22,6 +22,7 @@ from fastapi.testclient import TestClient
 
 import main as main_module
 from services import registry
+from services.special_crawler.oz_crawler import FEED_PAGE_COUNT, OzCrawler
 
 PRODUCT = {
     "name": "Test Crackers",
@@ -79,6 +80,12 @@ def set_coles_data(monkeypatch, envelope):
     monkeypatch.setattr(registry.coles_v2_5_crawler_service, "fetch_data", fetch_data)
 
 
+@pytest.fixture
+def oz_client(client, monkeypatch):
+    monkeypatch.setattr(main_module, "oz_crawler_service", OzCrawler())
+    return client
+
+
 @pytest.mark.parametrize(
     ("title", "price"),
     [
@@ -87,40 +94,76 @@ def set_coles_data(monkeypatch, envelope):
         ("Pantry staples $1,299.95, delivered", "$1,299.95"),
     ],
 )
-def test_oz_feed_uses_latest_deals_when_no_default_keywords_match(client, monkeypatch, title, price):
+def test_oz_feed_uses_latest_deals_when_no_default_keywords_match(oz_client, monkeypatch, title, price):
     response = Mock(content=f"""
-    <rss xmlns:media="http://search.yahoo.com/mrss/"><channel><item>
+    <rss xmlns:media="http://search.yahoo.com/mrss/" xmlns:oz="https://www.ozbargain.com.au"><channel><item>
       <title>{title}</title>
       <link>https://www.ozbargain.com.au/node/123</link>
       <pubDate>Sun, 22 Nov 2026 09:00:00 +1100</pubDate>
       <media:thumbnail url="https://example.com/deal.jpg" />
+      <oz:meta url="https://shop.example.com/pantry" link="https://www.ozbargain.com.au/goto/123" />
     </item></channel></rss>
     """.encode())
     monkeypatch.setattr("services.special_crawler.oz_crawler.requests.get", Mock(return_value=response))
 
-    res = client.get("/oz-data")
+    res = oz_client.get("/oz-data")
     assert res.status_code == 200
     assert res.json() == [{
         "name": title,
         "price": price,
         "link": "https://www.ozbargain.com.au/node/123",
-        "node_url": "https://www.ozbargain.com.au/node/123",
+        "node_url": "https://shop.example.com/pantry",
         "image": "https://example.com/deal.jpg",
         "time": "2026-11-22T09:00:00+11:00",
         "tag": None,
     }]
-    assert client.get("/oz-data", params={"wish": "pantry"}).json() == res.json()
-    assert client.get("/oz-data", params={"wish": "iphone"}).json() == []
+    assert oz_client.get("/oz-data", params={"wish": "pantry"}).json() == res.json()
+    assert oz_client.get("/oz-data", params={"wish": "iphone"}).json() == []
 
 
-def test_oz_upstream_http_error_is_reported(client, monkeypatch):
+def test_oz_upstream_http_error_is_reported(oz_client, monkeypatch):
     response = Mock()
     response.raise_for_status.side_effect = requests.HTTPError("403 Forbidden")
     monkeypatch.setattr("services.special_crawler.oz_crawler.requests.get", Mock(return_value=response))
 
-    res = client.get("/oz-data")
+    res = oz_client.get("/oz-data")
     assert res.status_code == 502
     assert res.json()["detail"] == "Ozbargain feed is unavailable"
+
+
+def test_oz_search_includes_older_pages_without_duplicate_or_expired_deals(oz_client, monkeypatch):
+    calls = []
+    first_item = """
+    <item><title>Monitor $399</title><link>https://www.ozbargain.com.au/node/123</link></item>
+    """
+    older_items = """
+    <item>
+      <title>Monitor $249</title><link>https://www.ozbargain.com.au/node/122</link>
+      <oz:meta link="https://www.ozbargain.com.au/goto/122" />
+    </item>
+    <item>
+      <title>Monitor $199</title><link>https://www.ozbargain.com.au/node/121</link>
+      <oz:meta expiry="2020-11-22T00:00:00+11:00" />
+    </item>
+    """
+    pages = {0: first_item, 1: first_item + older_items}
+
+    def fetch_page(url, *, params, timeout):
+        index = params["page"] if params else 0
+        calls.append(index)
+        if index == 2:
+            raise requests.Timeout()
+        items = pages.get(index, "")
+        return Mock(content=f'<rss xmlns:oz="https://www.ozbargain.com.au"><channel>{items}</channel></rss>'.encode())
+
+    monkeypatch.setattr("services.special_crawler.oz_crawler.requests.get", fetch_page)
+    results = oz_client.get("/oz-data", params={"wish": "monitor"}).json()
+    assert [(deal["price"], deal["node_url"]) for deal in results] == [
+        ("$399", None),
+        ("$249", "https://www.ozbargain.com.au/goto/122"),
+    ]
+    assert oz_client.get("/oz-data", params={"wish": "monitor", "page": 1}).json() == results[:1]
+    assert sorted(calls) == list(range(FEED_PAGE_COUNT))
 
 
 def test_v2_5_response_shape_is_frozen(client, monkeypatch):

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from services.service import Service
-from services.special_crawler.oz_crawler import OzCrawler, OzFeedUnavailable
+from services.special_crawler.oz_crawler import FEED_PAGE_COUNT, OzCrawler, OzFeedUnavailable
 from services.refresh_manager import RefreshManager
 from services.registry import (
     coles_crawler_service,
@@ -103,7 +103,7 @@ def read_calculate(input: int):
     return service.calculate(input)
 
 @app.get("/oz-data")
-def read_oz_data(page: int = 20, wish: Annotated[list[str] | None, Query()] = None):
+def read_oz_data(page: int = FEED_PAGE_COUNT, wish: Annotated[list[str] | None, Query()] = None):
     try:
         return oz_crawler_service.oz_crawl_pipeline(page, wish)
     except OzFeedUnavailable as exc:
