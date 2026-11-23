@@ -6,11 +6,11 @@ crawler fetch/sync methods are monkeypatched so no network or storage
 is touched.
 """
 
-from contextlib import nullcontext
+from contextlib import asynccontextmanager
 import os
 import asyncio
 from datetime import datetime, timedelta, timezone
-from unittest.mock import Mock
+from unittest.mock import AsyncMock, Mock
 
 os.environ.setdefault("R2_ENDPOINT_URL", "https://example.invalid")
 os.environ.setdefault("R2_ACCESS_KEY_ID", "test")
@@ -88,11 +88,16 @@ def oz_client(client, monkeypatch):
 
 @pytest.fixture
 def oz_page(monkeypatch):
+    page = Mock(goto=AsyncMock(return_value=Mock(ok=True, status=200)), content=AsyncMock())
+    browser = Mock(new_page=AsyncMock(return_value=page), close=AsyncMock())
     playwright = Mock()
-    browser = playwright.firefox.launch.return_value
-    page = browser.new_page.return_value
-    page.goto.return_value = Mock(ok=True, status=200)
-    monkeypatch.setattr("services.special_crawler.oz_crawler.sync_playwright", lambda: nullcontext(playwright))
+    playwright.firefox.launch = AsyncMock(return_value=browser)
+
+    @asynccontextmanager
+    async def browser_context():
+        yield playwright
+
+    monkeypatch.setattr("services.special_crawler.oz_crawler.async_playwright", browser_context)
     return page
 
 

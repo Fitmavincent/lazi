@@ -103,9 +103,9 @@ def read_calculate(input: int):
     return service.calculate(input)
 
 @app.get("/oz-data")
-def read_oz_data(page: int = FEED_PAGE_COUNT, wish: Annotated[list[str] | None, Query()] = None):
+async def read_oz_data(page: int = FEED_PAGE_COUNT, wish: Annotated[list[str] | None, Query()] = None):
     try:
-        return oz_crawler_service.oz_crawl_pipeline(page, wish)
+        return await oz_crawler_service.oz_crawl_pipeline(page, wish)
     except OzFeedUnavailable as exc:
         logger.warning("Ozbargain feed unavailable: %s", exc.__cause__ or exc)
         raise HTTPException(status_code=502, detail="Ozbargain feed is unavailable") from exc
