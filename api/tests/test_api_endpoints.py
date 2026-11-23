@@ -79,22 +79,30 @@ def set_coles_data(monkeypatch, envelope):
     monkeypatch.setattr(registry.coles_v2_5_crawler_service, "fetch_data", fetch_data)
 
 
-def test_oz_feed_uses_latest_deals_when_no_default_keywords_match(client, monkeypatch):
-    response = Mock(content=b"""
+@pytest.mark.parametrize(
+    ("title", "price"),
+    [
+        ("Pantry staples $5.50", "$5.50"),
+        ("Pantry staples $197, delivered", "$197"),
+        ("Pantry staples $1,299.95, delivered", "$1,299.95"),
+    ],
+)
+def test_oz_feed_uses_latest_deals_when_no_default_keywords_match(client, monkeypatch, title, price):
+    response = Mock(content=f"""
     <rss xmlns:media="http://search.yahoo.com/mrss/"><channel><item>
-      <title>Pantry staples $5.50</title>
+      <title>{title}</title>
       <link>https://www.ozbargain.com.au/node/123</link>
       <pubDate>Sun, 22 Nov 2026 09:00:00 +1100</pubDate>
       <media:thumbnail url="https://example.com/deal.jpg" />
     </item></channel></rss>
-    """)
+    """.encode())
     monkeypatch.setattr("services.special_crawler.oz_crawler.requests.get", Mock(return_value=response))
 
     res = client.get("/oz-data")
     assert res.status_code == 200
     assert res.json() == [{
-        "name": "Pantry staples $5.50",
-        "price": "$5.50",
+        "name": title,
+        "price": price,
         "link": "https://www.ozbargain.com.au/node/123",
         "node_url": "https://www.ozbargain.com.au/node/123",
         "image": "https://example.com/deal.jpg",

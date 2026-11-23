@@ -10,7 +10,7 @@ FEED_URL = "https://www.ozbargain.com.au/deals/feed"
 OZBARGAIN_META = "{https://www.ozbargain.com.au}meta"
 MEDIA_THUMBNAIL = "{http://search.yahoo.com/mrss/}thumbnail"
 DEFAULT_WISH_LIST = ("LEGO", "Xiaomi", "DJI", "iPhone", "Apple", "RTX")
-PRICE_PATTERN = re.compile(r"\$\d[\d,]*(?:\.\d{2})?")
+PRICE_PATTERN = re.compile(r"\$(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{2})?")
 
 
 class OzFeedUnavailable(Exception):
